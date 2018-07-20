@@ -1,14 +1,14 @@
 # Introduction 
 Unofficial Google Photos Uploader coded in .NET Core. Inspired by https://github.com/simonedegiacomi/gphotosuploader
 
-As of July 2018 the tool is under development and will be released as soon as it's reached an acceptable beta stage....
+As of July 2018 the tool is under development and will be released when it has reached an acceptable beta stage....
 
 
 # Download
 Ready to give it a try? Download the tool here once it's ready.
-TODO: Provide link to a pre-compiled version that is ready to be installed.
 * MAC/Linux version: Not ready
 * Windows version: Not ready
+TODO: Provide link to a pre-compiled version that is ready to be installed.
 
 
 # Getting Started for Developers
