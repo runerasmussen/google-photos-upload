@@ -1,14 +1,15 @@
 # Introduction 
-Unofficial Google Photos Uploader coded in .NET Core. Inspired by https://github.com/simonedegiacomi/gphotosuploader
+Unofficial Google Photos Uploader console application coded in .NET Core 2.1.
 
-As of July 2018 the tool is under development and will be released when it has reached an acceptable beta stage....
+The tool is leveraging the [Google Photos API](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/)
+
+As of August 2018 the tool is under development and will be released when it has reached an acceptable Alpha stage....
 
 
-# Download
-Ready to give it a try? Download the tool here once it's ready.
-* MAC/Linux version: Not ready
-* Windows version: Not ready
-TODO: Provide link to a pre-compiled version that is ready to be installed.
+# Download and Install Guide
+Ready to give it a try?
+* MAC/Linux: Not ready (link to precompiled version and user guide will be provided)
+* Windows 10: Not ready (link to precompiled version and user guide will be provided)
 
 
 # Getting Started for Developers
@@ -22,9 +23,4 @@ TODO: Guide users through getting your code up and running on their own system. 
 TODO: Describe and show how to build your code and run the tests. 
 
 # Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://www.visualstudio.com/en-us/docs/git/create-a-readme). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Note: This is a small hobby project. You are welcome to contact me or create a Pull Request if you have specific suggestions that can improve this small utility. 
