@@ -1,26 +1,44 @@
+![Build status](https://runerasmussen.visualstudio.com/google-photos-upload/_apis/build/status/google-photos-upload-CI)
+
 # Introduction 
-Unofficial Google Photos Uploader console application coded in .NET Core 2.1.
+Unofficial Google Photos Uploader console application for Mac/PC/Linux.
 
-The tool is leveraging the [Google Photos API](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/)
+Coded in .NET Core 2.1 and leveraging the [Google Photos API](https://developers.google.com/photos/).
 
-As of August 2018 the tool is under development and will be released when it has reached an acceptable Alpha stage....
+Features:
+* List current Google Photos Album
+* Upload a Folder into Google Photos as an Album
+* Upload Multiple Folders from a main Folder into Google Photos as Albums
 
 
-# Download and Install Guide
-Ready to give it a try?
-* MAC/Linux: Not ready (link to precompiled version and user guide will be provided)
-* Windows 10: Not ready (link to precompiled version and user guide will be provided)
+As of October 2018 the tool is under development and will be released when it has reached an acceptable Alpha stage....
+
+
+# Installation Guide
+Ready to give it a try on your Mac/PC/Linux?
+1. This is hobby project software and comes without any warranty!
+2. Install [.NET Core 2.1 or later](https://www.microsoft.com/net/download))
+3. Download 'Google Photos Uploader' (Location to come soon)
+4. Execute the application:
+	i. Mac/Linux: Details coming soon!
+	ii. PC: Details coming soon!
+5. Recover Storage:
+	i. Open [Google Photos Settings website](https://photos.google.com/settings)
+	ii. Click 'Recover Storage' (will downgrade ALL your photos from Original down to High Quality)
 
 
 # Getting Started for Developers
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+TODO: Guide users through getting the code up and running on their own system.
+TODO: Describe and show how to build the code and run the tests.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+
+### API references
+* [Google Photos API v1](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/) / ([Google Photos API homepage](https://developers.google.com/photos/)) enables the API integration for Google Photos.
+* [ExifLibrary](https://github.com/devedse/exiflibrary) reads Image Exif properties to ensure Image date is correct before upload.
+* [.NET Core](https://dot.net)
+* COMING SOON: [Mono.Options](https://github.com/xamarin/XamarinComponents/tree/master/XPlat/Mono.Options) by the Xamarin team processes commandline arguments.
+
 
 # Contribute
-Note: This is a small hobby project. You are welcome to contact me or create a Pull Request if you have specific suggestions that can improve this small utility. 
+This is a small hobby project. 
+You are welcome to create an Issue or Pull Request if you have specific suggestions that can improve this small utility. 
