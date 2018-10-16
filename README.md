@@ -29,7 +29,7 @@ TODO: Describe and show how to build the code and run the tests.
 
 
 ### API references
-* [Google Photos API v1](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/) / ([Google Photos API homepage](https://developers.google.com/photos/)) enables the API integration for Google Photos.
+* [Google Photos API v1](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/) / [Google Photos API homepage](https://developers.google.com/photos/) enables the API integration for Google Photos.
 * [ExifLibrary](https://github.com/devedse/exiflibrary) reads Image Exif properties to ensure Image date is correct before upload.
 * [.NET Core](https://dot.net)
 * COMING SOON: Logging framework
@@ -39,3 +39,7 @@ TODO: Describe and show how to build the code and run the tests.
 ### Contribute
 This is a small hobby project. 
 You are welcome to create an Issue or Pull Request if you have specific suggestions that can improve this small utility. 
+
+
+# License
+Licensed under the [MIT license](LICENSE.md). No warranty!
