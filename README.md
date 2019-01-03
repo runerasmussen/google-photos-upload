@@ -21,6 +21,8 @@ Ready to give it a try on your Mac/PC/Linux?
 6. Recover Storage: Open [Google Photos Settings website](https://photos.google.com/settings)
 and Click 'Recover Storage' (will downgrade ALL your photos from Original down to High Quality)
 
+For troubleshooting look at the log file found in log/google-photos-upload.log
+
 
 # Developers
 TODO: Guide users through getting the code up and running on their own system.
@@ -32,7 +34,7 @@ TODO: Describe and show how to build the code and run the tests.
 * [Google Photos API v1](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/) / [Google Photos API homepage](https://developers.google.com/photos/) enables the API integration for Google Photos.
 * [ExifLibrary](https://github.com/devedse/exiflibrary) reads Image Exif properties to ensure Image date is correct before upload.
 * [.NET Core](https://dot.net)
-* COMING SOON: Logging framework
+* [NLog](https://nlog-project.org/)
 * COMING SOON: [Mono.Options](https://github.com/xamarin/XamarinComponents/tree/master/XPlat/Mono.Options) by the Xamarin team processes commandline arguments.
 
 

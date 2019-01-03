@@ -9,72 +9,92 @@ using System.Net.Http.Headers;
 using System.Text;
 using ExifLibrary;
 using google_photos_upload.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace google_photos_upload.Model
 {
     class MyImage
     {
+        private readonly ILogger _logger = null;
+
         private PhotosLibraryService service = null;
         private Album album = null;
         private FileInfo imgFile = null;
         private string uploadToken = null;
 
+        /// <summary>
+        /// Supported file formats
+        /// </summary>
+        /// TODO: Move into Configuration file
         private static readonly string[] allowedfileformats = { "jpg", "jpeg", "gif" };
 
-        public MyImage(PhotosLibraryService photoService, Album album, FileInfo imgFile)
+        public MyImage(ILogger logger, PhotosLibraryService photoService, Album album, FileInfo imgFile)
         {
+            this._logger = logger;
             this.service = photoService;
             this.album = album;
             this.imgFile = imgFile;
         }
 
+        /// <summary>
+        /// Photo File Name
+        /// </summary>
         public string Name
         {
             get { return imgFile.Name; }
         }
 
+        /// <summary>
+        /// File Name URL encoded 
+        /// </summary>
         private string NameEncoded
         {
             get { return Name.UrlEncode(); }
         }
 
+        /// <summary>
+        /// Image name in ASCII format
+        /// </summary>
         private string NameASCII
         {
             get { return Name.UnicodeToASCII(); }
         }
 
+        /// <summary>
+        /// Google Photos UploadToken for the file when it has been uploaded
+        /// </summary>
         public string UploadToken
         {
             get { return this.uploadToken; }
         }
 
-
         /// <summary>
-        /// 'Date Taken Original' value from image EXIF data. Avoids loading the whole image file into memory.
+        /// Gets the 'Date Taken Original' value in DateTime format, derived from image EXIF data (avoids loading the whole image file into memory).
         /// </summary>
-        /// <param name="path">Filepath to image</param>
-        /// <returns>'Date Taken Original' value from EXIF converted into DateTime format</returns>
-        private static DateTime? GetDateImageWasTaken(string path)
+        private DateTime? DateImageWasTaken
         {
-            try
+            get
             {
-                ImageFile imageFile = ImageFile.FromFile(path);
-                var datetimeOriginal = imageFile.Properties.FirstOrDefault<ExifProperty>(x => x.Tag == ExifTag.DateTimeOriginal).Value;
-                string datetimeOriginaltxt = datetimeOriginal.ToString();
+                try
+                {
+                    ImageFile imageFile = ImageFile.FromFile(imgFile.FullName);
+                    var datetimeOriginal = imageFile.Properties.FirstOrDefault<ExifProperty>(x => x.Tag == ExifTag.DateTimeOriginal).Value;
+                    string datetimeOriginaltxt = datetimeOriginal.ToString();
 
-                if (DateTime.TryParse(datetimeOriginaltxt, out DateTime dtOriginal))
-                    return dtOriginal;
+                    if (DateTime.TryParse(datetimeOriginaltxt, out DateTime dtOriginal))
+                        return dtOriginal;
 
-                //Unable to get date
+                    //Unable to get date
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Failed reading EXIF data...");
+                }
+
+                //Unable to extract EXIF data from file
                 return null;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("Failed reading EXIF data...");
-            }
-
-            //Unable to extract EXIF data from file
-            return null;
         }
 
 
@@ -91,7 +111,7 @@ namespace google_photos_upload.Model
 
 
                     // EXIF property "Date Taken Original" must be set on the image file to ensure correct date in Google Photos
-                    var datetimeOriginal = GetDateImageWasTaken(imgFile.FullName);
+                    var datetimeOriginal = DateImageWasTaken;
                     if (datetimeOriginal == null)
                         return false;
                 }
@@ -105,10 +125,12 @@ namespace google_photos_upload.Model
             }
         }
 
-
+        /// <summary>
+        /// Perform upload of Photo file to Google Cloud
+        /// </summary>
+        /// <returns></returns>
         public bool UploadImage()
         {
-            //Upload Photo to Google Photo backend
             this.uploadToken = UploadPhotoFile(service);
 
             if (uploadToken is null)

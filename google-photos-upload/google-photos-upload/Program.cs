@@ -3,13 +3,23 @@ using System.IO;
 using System.Threading;
 using Google.Apis.PhotosLibrary.v1;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace google_photos_upload
 {
     class Program
     {
+        private static ILogger _logger = null;
+
         static void Main(string[] args)
         {
+            var servicesProvider = BuildDi();
+
+            _logger = servicesProvider.GetService<ILoggerFactory>().CreateLogger<Program>();
+
+
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine();
@@ -24,7 +34,8 @@ namespace google_photos_upload
             Console.WriteLine();
             Console.WriteLine();
 
-            UploadHandler.Initialize();
+
+            UploadHandler.Initialize(_logger);
 
             bool appexit = false;
 
@@ -72,8 +83,31 @@ namespace google_photos_upload
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine();
             Console.WriteLine();
+
+            // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+            NLog.LogManager.Shutdown();
         }
 
 
+        private static IServiceProvider BuildDi()
+        {
+            var services = new ServiceCollection()
+                .AddLogging();
+
+            services.AddSingleton<ILoggerFactory, LoggerFactory>();
+            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+            //services.AddLogging((builder) => builder.SetMinimumLevel(LogLevel.Trace));
+
+            var servicesProvider = services.BuildServiceProvider();
+
+            var loggerFactory = servicesProvider.GetRequiredService<ILoggerFactory>();
+
+
+            //configure NLog
+            loggerFactory.AddNLog(new NLogProviderOptions { CaptureMessageTemplates = true, CaptureMessageProperties = true });
+            NLog.LogManager.LoadConfiguration("nlog.config");
+
+            return servicesProvider;
+        }
     }
 }

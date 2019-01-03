@@ -4,45 +4,55 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using google_photos_upload.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace google_photos_upload.Model
 {
     class MyAlbum
     {
+        private readonly ILogger _logger;
+
         private string albumTitle = null;
         private Album album = null;
         private PhotosLibraryService service = null;
         private DirectoryInfo dirInfo = null;
         private List<MyImage> myImages = new List<MyImage>();
 
-        public MyAlbum(PhotosLibraryService service, string albumTitle, DirectoryInfo dirInfo)
+        public MyAlbum(ILogger logger, PhotosLibraryService service, string albumTitle, DirectoryInfo dirInfo)
         {
+            this._logger = logger;
             this.service = service;
             this.albumTitle = albumTitle;
             this.dirInfo = dirInfo;
         }
 
+        /// <summary>
+        /// Number of photos
+        /// </summary>
         public int ImageUploadCount
         {
             get { return myImages.Count; }
         }
 
+        /// <summary>
+        /// Album title in a Google friendly format due to API constraints
+        /// </summary>
         private string AlbumTitleGoogleFriendly
         {
             get { return albumTitle.ToUTF8(); }
         }
 
 
-        public static void ListAlbums(PhotosLibraryService service)
+        public static void ListAlbums(PhotosLibraryService service, ILogger logger)
         {
-            Console.WriteLine();
-            Console.WriteLine("Fetching albums...");
+            logger.LogInformation("");
+            logger.LogInformation("Fetching albums...");
 
             Google.Apis.PhotosLibrary.v1.AlbumsResource.ListRequest request = service.Albums.List();
 
             // List events.
             Google.Apis.PhotosLibrary.v1.Data.ListAlbumsResponse response = request.Execute();
-            Console.WriteLine("Albums:");
+            logger.LogInformation("Albums:");
             if (response.Albums != null && response.Albums.Count > 0)
             {
                 bool morePages = true;
@@ -52,7 +62,7 @@ namespace google_photos_upload.Model
                     foreach (var album in response.Albums)
                     {
                         string title = album.Title;
-                        Console.WriteLine($"> {title}");
+                        logger.LogInformation($"> {title}");
                     }
 
                     if (response.NextPageToken != null)
@@ -68,7 +78,7 @@ namespace google_photos_upload.Model
             }
             else
             {
-                Console.WriteLine("No albums found.");
+                logger.LogInformation("No albums found.");
             }
         }
 
@@ -78,13 +88,13 @@ namespace google_photos_upload.Model
             //Upload images to Google Cloud
             if (!UploadImages())
             {
-                Console.WriteLine($"Album '{albumTitle}' image file(s) upload failed fully/partly");
+                _logger.LogError($"Album '{albumTitle}' image file(s) upload failed fully/partly");
             }
 
             //Abort if zero images uploaded
             if (ImageUploadCount == 0 || myImages.Count == 0)
             {
-                Console.WriteLine("Zero images were succesfully uploaded. Album will not be created");
+                _logger.LogError("Zero images were succesfully uploaded. Album will not be created");
                 return false;
             }
 
@@ -95,7 +105,7 @@ namespace google_photos_upload.Model
             if (album is null)
             {
                 //New Album
-                Console.WriteLine($"Creating new Album in Google Photos: {albumTitle}");
+                _logger.LogInformation($"Creating new Album in Google Photos: {albumTitle}");
 
                 //Create Album in Google Photos
                 album = CreateAlbum();
@@ -109,7 +119,7 @@ namespace google_photos_upload.Model
 
                 if (album is null)
                 {
-                    Console.WriteLine($"Album '{albumTitle}' not found after it was created. Aborting.");
+                    _logger.LogError($"Album '{albumTitle}' not found after it was created. Aborting.");
                     return false;
                 }
 
@@ -123,7 +133,7 @@ namespace google_photos_upload.Model
             else
             {
                 //Album already exists, update it
-                Console.WriteLine($"Album '{albumTitle}' already exists in Google Photos and will be updated");
+                _logger.LogWarning($"Album '{albumTitle}' already exists in Google Photos and will be updated");
             }
 
 
@@ -143,8 +153,8 @@ namespace google_photos_upload.Model
             {
                 if (!imgFile.Attributes.HasFlag(FileAttributes.Hidden))  //Do not process hidden files
                 {
-                    MyImage myImage = new MyImage(service, album, imgFile);
-                    Console.WriteLine($"Uploading {myImage.Name}");
+                    MyImage myImage = new MyImage(_logger, service, album, imgFile);
+                    _logger.LogInformation($"Uploading {myImage.Name}");
 
                     if (myImage.IsFormatSupported)
                     {
@@ -154,7 +164,7 @@ namespace google_photos_upload.Model
                         if (!imguploadresult)
                         {
                             uploadresult = false;
-                            Console.WriteLine("Image upload failed");
+                            _logger.LogError("Image upload failed");
                         }
                         else
                         {
@@ -164,7 +174,7 @@ namespace google_photos_upload.Model
                     else
                     {
                         uploadresult = false;
-                        Console.WriteLine($"NOT uploading '{myImage.Name}' due to file type not supported or EXIF data issue");
+                        _logger.LogWarning($"NOT uploading '{myImage.Name}' due to file type not supported or EXIF data issue");
                     }
                 }
             }
@@ -219,7 +229,7 @@ namespace google_photos_upload.Model
 
             Album responseAlbum = service.Albums.Create(createAlbumRequest).Execute();
 
-            Console.WriteLine($"Album created: {responseAlbum.Title}");
+            _logger.LogInformation($"Album created: {responseAlbum.Title}");
 
 
             return responseAlbum;
@@ -233,7 +243,7 @@ namespace google_photos_upload.Model
             if (album.IsWriteable == null || !album.IsWriteable.Value)
                 throw new ArgumentException("Album is not writable - image upload aborted");
 
-            Console.WriteLine($"Adding {myImages.Count} images to Album '{albumTitle}'");
+            _logger.LogInformation($"Adding {myImages.Count} images to Album '{albumTitle}'");
 
             var imagecollection = new List<NewMediaItem>();
 

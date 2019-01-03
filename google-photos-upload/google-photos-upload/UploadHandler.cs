@@ -4,15 +4,20 @@ using System.Text;
 using System.IO;
 using Google.Apis.PhotosLibrary.v1;
 using google_photos_upload.Model;
+using Microsoft.Extensions.Logging;
 
 namespace google_photos_upload
 {
-    public static class UploadHandler
+    public class UploadHandler
     {
+        private static ILogger _logger;
+
         private static PhotosLibraryService service = null;
 
-        public static void Initialize()
+        public static void Initialize(ILogger logger)
         {
+            _logger = logger;
+
             service = ServiceHandler.GetPhotosLibraryService();
 
             if (service is null)
@@ -21,7 +26,7 @@ namespace google_photos_upload
 
         public static void ListAlbums()
         {
-            MyAlbum.ListAlbums(service);
+            MyAlbum.ListAlbums(service, _logger);
         }
 
         public static bool ProcessMainDirectory()
@@ -32,7 +37,7 @@ namespace google_photos_upload
 
             if (!Directory.Exists(path))
             {
-                Console.WriteLine("The folder could not be found. Please try again.");
+                Console.WriteLine($"The folder '{path}' could not be found. Please try again.");
                 return false;
             }
 
@@ -77,7 +82,7 @@ namespace google_photos_upload
             Console.WriteLine();
             Console.WriteLine($"Uploading Album: {albumtitle}");
 
-            MyAlbum album = new MyAlbum(service, albumtitle, dirInfo);
+            MyAlbum album = new MyAlbum(_logger, service, albumtitle, dirInfo);
             bool albumuploadresult = album.UploadAlbum();
 
             if (!albumuploadresult)
