@@ -141,7 +141,7 @@ namespace google_photos_upload.Model
             {
                 if (!imgFile.Attributes.HasFlag(FileAttributes.Hidden))  //Do not process hidden files
                 {
-                    MyImage myImage = new MyImage(_logger, service, album, imgFile);
+                    MyImage myImage = new MyImage(_logger, service, imgFile);
                     _logger.LogInformation($"Uploading {myImage.Name}");
 
                     if (myImage.IsFormatSupported)

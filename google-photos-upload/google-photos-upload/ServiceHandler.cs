@@ -49,7 +49,7 @@ namespace google_photos_upload
                     new FileDataStore(credPath, true)).Result;
 
                 if (credential == null)
-                    throw new ArgumentNullException("Could not authenticate");
+                    throw new System.Security.Authentication.AuthenticationException("Could not authenticate");
 
                 if (newlyAuthenticated)
                 {

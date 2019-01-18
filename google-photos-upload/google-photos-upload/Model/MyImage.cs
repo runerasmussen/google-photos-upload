@@ -18,21 +18,18 @@ namespace google_photos_upload.Model
         private readonly ILogger _logger = null;
 
         private readonly PhotosLibraryService service = null;
-        private readonly Album album = null;
         private readonly FileInfo imgFile = null;
         private string uploadToken = null;
 
         /// <summary>
         /// Supported file formats
         /// </summary>
-        /// TODO: Move into Configuration file
         private static readonly string[] allowedfileformats = { "jpg", "jpeg", "gif" };
 
-        public MyImage(ILogger logger, PhotosLibraryService photoService, Album album, FileInfo imgFile)
+        public MyImage(ILogger logger, PhotosLibraryService photoService, FileInfo imgFile)
         {
             this._logger = logger;
             this.service = photoService;
-            this.album = album;
             this.imgFile = imgFile;
         }
 
@@ -170,8 +167,9 @@ namespace google_photos_upload.Model
                 }
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Upload of Image stream failed");
                 throw;
             }
 
