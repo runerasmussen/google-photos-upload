@@ -17,9 +17,9 @@ namespace google_photos_upload.Model
     {
         private readonly ILogger _logger = null;
 
-        private PhotosLibraryService service = null;
-        private Album album = null;
-        private FileInfo imgFile = null;
+        private readonly PhotosLibraryService service = null;
+        private readonly Album album = null;
+        private readonly FileInfo imgFile = null;
         private string uploadToken = null;
 
         /// <summary>
@@ -42,14 +42,6 @@ namespace google_photos_upload.Model
         public string Name
         {
             get { return imgFile.Name; }
-        }
-
-        /// <summary>
-        /// File Name URL encoded 
-        /// </summary>
-        private string NameEncoded
-        {
-            get { return Name.UrlEncode(); }
         }
 
         /// <summary>
@@ -89,7 +81,7 @@ namespace google_photos_upload.Model
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("Failed reading EXIF data...");
+                    _logger.LogError(e, "Failed reading EXIF data...");
                 }
 
                 //Unable to extract EXIF data from file
@@ -153,7 +145,7 @@ namespace google_photos_upload.Model
         /// <returns></returns>
         private string UploadPhotoFile(PhotosLibraryService photoService)
         {
-            string uploadToken = null;
+            string newUploadToken = null;
 
             try
             {
@@ -174,7 +166,7 @@ namespace google_photos_upload.Model
                     HttpResponseMessage photoResponse = photoService.HttpClient.PostAsync("https://photoslibrary.googleapis.com/v1/uploads", httpContent).Result;
 
                     if (photoResponse.IsSuccessStatusCode)
-                        uploadToken = photoResponse.Content.ReadAsStringAsync().Result;
+                        newUploadToken = photoResponse.Content.ReadAsStringAsync().Result;
                 }
 
             }
@@ -185,7 +177,7 @@ namespace google_photos_upload.Model
 
             photoService.HttpClient.DefaultRequestHeaders.Clear();
 
-            return uploadToken;
+            return newUploadToken;
         }
 
     }

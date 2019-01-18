@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace google_photos_upload.test
 {
@@ -8,6 +9,7 @@ namespace google_photos_upload.test
         [TestMethod]
         public void TestMethod1()
         {
+            throw new NotSupportedException();
         }
     }
 }

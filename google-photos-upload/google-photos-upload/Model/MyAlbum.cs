@@ -14,8 +14,8 @@ namespace google_photos_upload.Model
 
         private string albumTitle = null;
         private Album album = null;
-        private PhotosLibraryService service = null;
-        private DirectoryInfo dirInfo = null;
+        private readonly PhotosLibraryService service = null;
+        private readonly DirectoryInfo dirInfo = null;
         private List<MyImage> myImages = new List<MyImage>();
 
         public MyAlbum(ILogger logger, PhotosLibraryService service, string albumTitle, DirectoryInfo dirInfo)
@@ -34,14 +34,6 @@ namespace google_photos_upload.Model
             get { return myImages.Count; }
         }
 
-        /// <summary>
-        /// Album title in a Google friendly format due to API constraints
-        /// </summary>
-        private string AlbumTitleGoogleFriendly
-        {
-            get { return albumTitle.ToUTF8(); }
-        }
-
 
         public static void ListAlbums(PhotosLibraryService service, ILogger logger)
         {
@@ -55,13 +47,11 @@ namespace google_photos_upload.Model
             logger.LogInformation("Albums:");
             if (response.Albums != null && response.Albums.Count > 0)
             {
-                bool morePages = true;
-
-                while (response.Albums != null && response.Albums.Count > 0 && morePages)
+                while (response.Albums != null && response.Albums.Count > 0)
                 {
-                    foreach (var album in response.Albums)
+                    foreach (var albumresponse in response.Albums)
                     {
-                        string title = album.Title;
+                        string title = albumresponse.Title;
                         logger.LogInformation($"> {title}");
                     }
 
@@ -71,9 +61,7 @@ namespace google_photos_upload.Model
                         response = request.Execute();
                     }
                     else
-                    {
-                        morePages = false;
-                    }
+                        break;
                 }
             }
             else
@@ -183,36 +171,34 @@ namespace google_photos_upload.Model
         }
 
 
-
+        /// <summary>
+        /// Get the existing Google Photos Album entry
+        /// </summary>
+        /// <returns></returns>
         private Album GetAlbum()
         {
             AlbumsResource.ListRequest request = service.Albums.List();
+            //request.PageSize = 10; //Uncommenting. Let Google decide the page size.
             ListAlbumsResponse response = request.Execute();
 
-            if (response.Albums != null && response.Albums.Count > 0)
+            string alternateAlbumTitle = albumTitle.Replace("&", "&amp;");
+
+            while (response.Albums != null && response.Albums.Count > 0)
             {
-                bool morePages = true;
-
-                while (response.Albums != null && response.Albums.Count > 0 && morePages)
+                foreach (var albumresponse in response.Albums)
                 {
-                    foreach (var album in response.Albums)
-                    {
-                        string alternateAlbumTitle = albumTitle.Replace("&", "&amp;");
-
-                        if (album.Title.Equals(albumTitle) || album.Title.Equals(alternateAlbumTitle))
-                            return album;
-                    }
-
-                    if (response.NextPageToken != null)
-                    {
-                        request.PageToken = response.NextPageToken;
-                        response = request.Execute();
-                    }
-                    else
-                    {
-                        morePages = false;
-                    }
+                    if (albumresponse.Title.Equals(albumTitle) || albumresponse.Title.Equals(alternateAlbumTitle))
+                        return albumresponse;
                 }
+
+                //Fetch next page of Albums
+                if (response.NextPageToken != null)
+                {
+                    request.PageToken = response.NextPageToken;
+                    response = request.Execute();
+                }
+                else
+                    break;
             }
 
             return null;
@@ -221,11 +207,11 @@ namespace google_photos_upload.Model
 
         private Album CreateAlbum()
         {
-            Album album = new Album();
-            album.Title = albumTitle;
+            Album albumNew = new Album();
+            albumNew.Title = albumTitle;
 
             CreateAlbumRequest createAlbumRequest = new CreateAlbumRequest();
-            createAlbumRequest.Album = album;
+            createAlbumRequest.Album = albumNew;
 
             Album responseAlbum = service.Albums.Create(createAlbumRequest).Execute();
 
@@ -272,7 +258,10 @@ namespace google_photos_upload.Model
             int imagesAddedToAlbum = batchCreateMediaItemsResponse.NewMediaItemResults.Count;
 
             if (myImages.Count != imagesAddedToAlbum)
-                throw new Exception($"Images not added to Album. Expected {myImages.Count}, only {imagesAddedToAlbum} added.");
+            {
+                _logger.LogError($"Images not added fully to Album. Expected {myImages.Count}, only {imagesAddedToAlbum} added.");
+                return false;
+            }
 
             return true;
         }
