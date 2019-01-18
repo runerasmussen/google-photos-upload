@@ -19,7 +19,14 @@ namespace google_photos_upload
 
             _logger = servicesProvider.GetService<ILoggerFactory>().CreateLogger<Program>();
 
+            DrawConsoleInterface();
 
+            // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+            NLog.LogManager.Shutdown();
+        }
+
+        private static void DrawConsoleInterface()
+        {
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine();
@@ -35,11 +42,20 @@ namespace google_photos_upload
             Console.WriteLine();
 
 
-            UploadHandler.Initialize(_logger);
-
             bool appexit = false;
 
-            do
+            if (!UploadHandler.Initialize(_logger))
+            {
+                Console.WriteLine("Critical error occured - could not establish authentication with Google");
+                Console.WriteLine("See log for details.");
+                Console.WriteLine("Press any key to exit");
+                Console.ReadKey();
+
+                appexit = true;
+            }
+
+
+            while (!appexit)
             {
                 Console.WriteLine();
                 Console.WriteLine();
@@ -72,7 +88,7 @@ namespace google_photos_upload
                         break;
                 }
 
-            } while (!appexit);
+            }
 
 
             //Closing out
@@ -83,11 +99,7 @@ namespace google_photos_upload
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine();
             Console.WriteLine();
-
-            // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-            NLog.LogManager.Shutdown();
         }
-
 
         private static IServiceProvider BuildDi()
         {
@@ -96,7 +108,6 @@ namespace google_photos_upload
 
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-            //services.AddLogging((builder) => builder.SetMinimumLevel(LogLevel.Trace));
 
             var servicesProvider = services.BuildServiceProvider();
 

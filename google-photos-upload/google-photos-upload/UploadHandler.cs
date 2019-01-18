@@ -8,20 +8,25 @@ using Microsoft.Extensions.Logging;
 
 namespace google_photos_upload
 {
-    public class UploadHandler
+    public static class UploadHandler
     {
         private static ILogger _logger;
 
         private static PhotosLibraryService service = null;
 
-        public static void Initialize(ILogger logger)
+        public static bool Initialize(ILogger logger)
         {
             _logger = logger;
 
             service = ServiceHandler.GetPhotosLibraryService();
 
             if (service is null)
-                throw new Exception("Initialize of Google Photos API Authentication failed");
+            {
+                _logger.LogCritical("Initialize of Google Photos API Authentication failed");
+                return false;
+            }
+
+            return true;
         }
 
         public static void ListAlbums()
