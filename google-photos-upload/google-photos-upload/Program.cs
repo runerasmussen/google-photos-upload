@@ -67,20 +67,21 @@ namespace google_photos_upload
                 Console.WriteLine("Press any other key to close the program");
                 Console.Write("Type your number of choice: ");
 
-                char key = Console.ReadKey().KeyChar;
+                short userchoice = GetUserChoice();
+
                 Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine("--------------------------------------------------------------------------------");
 
-                switch (key)
+                switch (userchoice)
                 {
-                    case '1':
+                    case 1:
                         UploadHandler.ListAlbums();
                         break;
-                    case '2':
+                    case 2:
                         UploadHandler.ProcessAlbumDirectory();
                         break;
-                    case '3':
+                    case 3:
                         UploadHandler.ProcessMainDirectory();
                         break;
                     default:
@@ -99,6 +100,24 @@ namespace google_photos_upload
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine();
             Console.WriteLine();
+        }
+
+        private static short GetUserChoice()
+        {
+            char key = Char.MinValue;
+            short choice = 0;
+
+            try
+            {
+                key = Console.ReadKey().KeyChar;
+                choice = (short)Char.GetNumericValue(key);                
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Unable to convert user key to short. The user selected key '{key}' is not valid.", key);
+            }
+
+            return choice;
         }
 
         private static IServiceProvider BuildDi()
