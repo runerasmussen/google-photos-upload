@@ -231,10 +231,36 @@ namespace google_photos_upload.Model
 
             _logger.LogInformation($"Adding {myImages.Count} images to Album '{albumTitle}'");
 
+            const int maxBatchSize = 50;
+            int imagesAddedToAlbum = 0;
+
+            //Divide into batches, due to API limitations
+            var batches = myImages.Batch<MyImage>(maxBatchSize);
+
+            foreach (var batch in batches)
+            {
+                imagesAddedToAlbum += ImageToAlbumBatch(batch);
+                _logger.LogDebug($"Added {imagesAddedToAlbum} images to Album '{albumTitle}'");
+            }
+
+
+            if (myImages.Count != imagesAddedToAlbum)
+            {
+                _logger.LogError($"Images not added fully to Album. Expected {myImages.Count}, only {imagesAddedToAlbum} added.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private int ImageToAlbumBatch(IEnumerable<MyImage> batch)
+        {
             var imagecollection = new List<NewMediaItem>();
 
-            foreach (var myImage in myImages)
+            foreach (var myImage in batch)
             {
+                _logger.LogDebug($"Adding '{myImage.Name}' to album");
+
                 NewMediaItem image = new NewMediaItem();
                 image.Description = Path.GetFileNameWithoutExtension(myImage.Name);
                 image.SimpleMediaItem = new SimpleMediaItem()
@@ -255,16 +281,7 @@ namespace google_photos_upload.Model
             MediaItemsResource.BatchCreateRequest batchCreateRequest = service.MediaItems.BatchCreate(batchCreateMediaItemsRequest);
 
             BatchCreateMediaItemsResponse batchCreateMediaItemsResponse = batchCreateRequest.Execute();
-            int imagesAddedToAlbum = batchCreateMediaItemsResponse.NewMediaItemResults.Count;
-
-            if (myImages.Count != imagesAddedToAlbum)
-            {
-                _logger.LogError($"Images not added fully to Album. Expected {myImages.Count}, only {imagesAddedToAlbum} added.");
-                return false;
-            }
-
-            return true;
+            return batchCreateMediaItemsResponse.NewMediaItemResults.Count;
         }
-
     }
 }
