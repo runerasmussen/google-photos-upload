@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using google_photos_upload.Extensions;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace google_photos_upload.Model
 {
@@ -137,7 +138,7 @@ namespace google_photos_upload.Model
         {
             bool uploadresult = true;
 
-            foreach (var imgFile in dirInfo.EnumerateFiles())
+            foreach (var imgFile in dirInfo.GetFiles().OrderBy(fi => fi.Name))
             {
                 if (!imgFile.Attributes.HasFlag(FileAttributes.Hidden))  //Do not process hidden files
                 {
@@ -231,10 +232,10 @@ namespace google_photos_upload.Model
 
             _logger.LogInformation($"Adding {myImages.Count} images to Album '{albumTitle}'");
 
-            const int maxBatchSize = 50;
+            const int maxBatchSize = 49;
             int imagesAddedToAlbum = 0;
 
-            //Divide into batches, due to API limitations
+            //Divide into batches, due to API limitation
             var batches = myImages.Batch<MyImage>(maxBatchSize);
 
             foreach (var batch in batches)

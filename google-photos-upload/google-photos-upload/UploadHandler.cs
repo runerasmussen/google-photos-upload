@@ -5,6 +5,7 @@ using System.IO;
 using Google.Apis.PhotosLibrary.v1;
 using google_photos_upload.Model;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace google_photos_upload
 {
@@ -47,7 +48,7 @@ namespace google_photos_upload
             }
 
             DirectoryInfo mainDirInfo = new DirectoryInfo(path);
-            foreach (var imgFolder in mainDirInfo.EnumerateDirectories())
+            foreach (var imgFolder in mainDirInfo.GetDirectories().OrderBy(di => di.Name))
             {
                 bool albumuploadresult = ProcessAlbumDirectory(imgFolder.FullName);
 
