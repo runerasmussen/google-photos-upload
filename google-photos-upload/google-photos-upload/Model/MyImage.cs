@@ -94,7 +94,7 @@ namespace google_photos_upload.Model
                 {
                     //Verify file extension is supported.
                     string filename = imgFile.Name.ToLower();
-                    string fileext = Path.GetExtension(filename);
+                    string fileext = Path.GetExtension(filename).ToLower();
                     if (!allowedfileformats.Any(fileext.Contains))
                         return false;
 

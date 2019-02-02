@@ -89,6 +89,44 @@ namespace google_photos_upload
             Console.WriteLine($"Uploading Album: {albumtitle}");
 
             MyAlbum album = new MyAlbum(_logger, service, albumtitle, dirInfo);
+
+
+            //Does the album already exist?
+            if (!album.IsAlbumNew)
+            {
+                if (!album.IsAlbumWritable)
+                {
+                    Console.WriteLine("Album not updated. For safety reasons then album created outside this utility is not updated.");
+                    return false;
+                }
+                else
+                {
+                    Console.Write("The album already exists, do you want to add any missing images to it? (y/n) ");
+
+                    try
+                    {
+                        char key = Console.ReadKey().KeyChar;
+
+                        if (key != 'y')
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine($"Album will not be uploaded: {albumtitle}");
+                            Console.WriteLine();
+                            return false;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "An error occured when evaluating user input");
+                        return false;
+                    }
+
+                    Console.WriteLine();
+                }
+            }
+
+
+            //Upload the album and images to Google Photos
             bool albumuploadresult = album.UploadAlbum();
 
             if (!albumuploadresult)

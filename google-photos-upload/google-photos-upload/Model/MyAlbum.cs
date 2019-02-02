@@ -36,6 +36,34 @@ namespace google_photos_upload.Model
         }
 
 
+        /// <summary>
+        /// Verify this is a new Album that does not exist in Google Photos
+        /// </summary>
+        public bool IsAlbumNew
+        {
+            get
+            {
+                SetAlbum();
+                return album == null;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsAlbumWritable
+        {
+            get
+            {
+                SetAlbum(); //Consider a way to avoid this check to save API calls.
+                if (album == null)
+                    return false;
+
+                return album.IsWriteable.GetValueOrDefault(false);
+            }
+        }
+
+
         public static void ListAlbums(PhotosLibraryService service, ILogger logger)
         {
             logger.LogInformation("");
@@ -72,8 +100,22 @@ namespace google_photos_upload.Model
         }
 
 
+
+        /// <summary>
+        /// Process a directory by first uploading all images to Google Cloud and secondly adding them to an Album.
+        /// If the Album exists the images will be added to it.
+        /// </summary>
         public bool UploadAlbum()
         {
+            //Check if Album already exists and if it's writable
+            //Get Album if it exists
+            if (!IsAlbumNew &&!IsAlbumWritable)
+            {
+                _logger.LogError($"Album '{albumTitle}' already exists and is not writable (was created outside of this utility). For safety reasons by design such Albums will not be updated.");
+                return false;
+            }
+
+
             //Upload images to Google Cloud
             if (!UploadImages())
             {
@@ -88,9 +130,6 @@ namespace google_photos_upload.Model
             }
 
 
-            //Get Album if it exists
-            album = GetAlbum();
-
             if (album is null)
             {
                 //New Album
@@ -103,7 +142,7 @@ namespace google_photos_upload.Model
                 //This is needed due to a bug where Google Photos API does not set the IsWritable when it's created but only when fetched again.
                 if (album != null && album.IsWriteable is null)
                 {
-                    album = GetAlbum();
+                    album = SetAlbum();
                 }
 
                 if (album is null)
@@ -173,11 +212,17 @@ namespace google_photos_upload.Model
 
 
         /// <summary>
-        /// Get the existing Google Photos Album entry
+        /// Get the existing Google Photos Album entry.
+        /// Sets the class variable 'album' as well.
         /// </summary>
-        /// <returns></returns>
-        private Album GetAlbum()
+        /// <returns>Album that exists, null otherwise</returns>
+        private Album SetAlbum()
         {
+            if (album != null)
+            {
+                return album;
+            }
+
             AlbumsResource.ListRequest request = service.Albums.List();
             //request.PageSize = 10; //Uncommenting. Let Google decide the page size.
             ListAlbumsResponse response = request.Execute();
@@ -189,7 +234,10 @@ namespace google_photos_upload.Model
                 foreach (var albumresponse in response.Albums)
                 {
                     if (albumresponse.Title.Equals(albumTitle) || albumresponse.Title.Equals(alternateAlbumTitle))
+                    {
+                        album = albumresponse;
                         return albumresponse;
+                    }
                 }
 
                 //Fetch next page of Albums
