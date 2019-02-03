@@ -18,19 +18,20 @@ namespace google_photos_upload.Model
         private readonly ILogger _logger = null;
 
         private readonly PhotosLibraryService service = null;
-        private readonly FileInfo imgFile = null;
+        private readonly FileInfo mediaFile = null;
         private string uploadToken = null;
 
         /// <summary>
         /// Supported file formats
         /// </summary>
-        private static readonly string[] allowedfileformats = { "jpg", "jpeg", "gif" };
+        private static readonly string[] allowedMovieFormats = { "mov", "avi" };
+        private static readonly string[] allowedPhotoFormats = { "jpg", "jpeg", "gif" };
 
         public MyImage(ILogger logger, PhotosLibraryService photoService, FileInfo imgFile)
         {
             this._logger = logger;
             this.service = photoService;
-            this.imgFile = imgFile;
+            this.mediaFile = imgFile;
         }
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace google_photos_upload.Model
         /// </summary>
         public string Name
         {
-            get { return imgFile.Name; }
+            get { return mediaFile.Name; }
         }
 
         /// <summary>
@@ -57,6 +58,35 @@ namespace google_photos_upload.Model
             get { return this.uploadToken; }
         }
 
+        public bool IsPhoto
+        {
+            get {
+                string filename = mediaFile.Name.ToLower();
+                string fileext = Path.GetExtension(filename).ToLower();
+
+                if (allowedPhotoFormats.Any(fileext.Contains))
+                    return true;
+
+                return false;
+            }
+        }
+
+
+        public bool IsMovie
+        {
+            get
+            {
+                string filename = mediaFile.Name.ToLower();
+                string fileext = Path.GetExtension(filename).ToLower();
+
+                if (allowedMovieFormats.Any(fileext.Contains))
+                    return true;
+
+                return false;
+            }
+        }
+
+
         /// <summary>
         /// Gets the 'Date Taken Original' value in DateTime format, derived from image EXIF data (avoids loading the whole image file into memory).
         /// </summary>
@@ -66,7 +96,7 @@ namespace google_photos_upload.Model
             {
                 try
                 {
-                    ImageFile imageFile = ImageFile.FromFile(imgFile.FullName);
+                    ImageFile imageFile = ImageFile.FromFile(mediaFile.FullName);
                     var datetimeOriginal = imageFile.Properties.FirstOrDefault<ExifProperty>(x => x.Tag == ExifTag.DateTimeOriginal).Value;
                     string datetimeOriginaltxt = datetimeOriginal.ToString();
 
@@ -92,17 +122,24 @@ namespace google_photos_upload.Model
             get {
                 try
                 {
-                    //Verify file extension is supported.
-                    string filename = imgFile.Name.ToLower();
-                    string fileext = Path.GetExtension(filename).ToLower();
-                    if (!allowedfileformats.Any(fileext.Contains))
+                    if (IsPhoto)
+                    {
+                        // EXIF property "Date Taken Original" must be set on the image file to ensure correct date in Google Photos
+                        var datetimeOriginal = DateImageWasTaken;
+                        if (datetimeOriginal == null)
+                            return false;
+                    }
+                    else if (IsMovie)
+                    {
+                        //Do check or Movie
+                    }
+                    else
+                    {
+                        //The file is not a supported Photo or Movie format
+                        _logger.LogWarning("The file type is not supported");
                         return false;
+                    }
 
-
-                    // EXIF property "Date Taken Original" must be set on the image file to ensure correct date in Google Photos
-                    var datetimeOriginal = DateImageWasTaken;
-                    if (datetimeOriginal == null)
-                        return false;
                 }
                 catch (Exception)
                 {
@@ -118,9 +155,9 @@ namespace google_photos_upload.Model
         /// Perform upload of Photo file to Google Cloud
         /// </summary>
         /// <returns></returns>
-        public bool UploadImage()
+        public bool UploadMedia()
         {
-            this.uploadToken = UploadPhotoFile(service);
+            this.uploadToken = UploadMediaFile(service);
 
             if (uploadToken is null)
                 return false;
@@ -140,13 +177,13 @@ namespace google_photos_upload.Model
         /// </summary>
         /// <param name="photo"></param>
         /// <returns></returns>
-        private string UploadPhotoFile(PhotosLibraryService photoService)
+        private string UploadMediaFile(PhotosLibraryService photoService)
         {
             string newUploadToken = null;
 
             try
             {
-                using (var fileStream = imgFile.OpenRead())
+                using (var fileStream = mediaFile.OpenRead())
                 {
                     //Create byte array to store the image for transfer
                     byte[] pixels = new byte[fileStream.Length];
@@ -160,10 +197,10 @@ namespace google_photos_upload.Model
                     httpContent.Headers.Add("X-Goog-Upload-Protocol", "raw");
 
 
-                    HttpResponseMessage photoResponse = photoService.HttpClient.PostAsync("https://photoslibrary.googleapis.com/v1/uploads", httpContent).Result;
+                    HttpResponseMessage mediaResponse = photoService.HttpClient.PostAsync("https://photoslibrary.googleapis.com/v1/uploads", httpContent).Result;
 
-                    if (photoResponse.IsSuccessStatusCode)
-                        newUploadToken = photoResponse.Content.ReadAsStringAsync().Result;
+                    if (mediaResponse.IsSuccessStatusCode)
+                        newUploadToken = mediaResponse.Content.ReadAsStringAsync().Result;
                 }
 
             }

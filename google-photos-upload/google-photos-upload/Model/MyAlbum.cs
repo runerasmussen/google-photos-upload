@@ -187,7 +187,7 @@ namespace google_photos_upload.Model
                     if (myImage.IsFormatSupported)
                     {
 
-                        bool imguploadresult = myImage.UploadImage();
+                        bool imguploadresult = myImage.UploadMedia();
 
                         if (!imguploadresult)
                         {
