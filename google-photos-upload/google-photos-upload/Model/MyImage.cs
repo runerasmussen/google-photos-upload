@@ -16,8 +16,8 @@ namespace google_photos_upload.Model
     class MyImage
     {
         private readonly ILogger _logger = null;
-
         private readonly PhotosLibraryService service = null;
+
         private readonly FileInfo mediaFile = null;
         private string uploadToken = null;
 
@@ -27,11 +27,22 @@ namespace google_photos_upload.Model
         private static readonly string[] allowedMovieFormats = { "mov", "avi" };
         private static readonly string[] allowedPhotoFormats = { "jpg", "jpeg", "gif" };
 
+
+
         public MyImage(ILogger logger, PhotosLibraryService photoService, FileInfo imgFile)
         {
             this._logger = logger;
             this.service = photoService;
             this.mediaFile = imgFile;
+            this.UploadStatus = UploadStatusEnum.NotStarted;
+        }
+
+
+
+        public UploadStatusEnum UploadStatus
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -157,11 +168,18 @@ namespace google_photos_upload.Model
         /// <returns></returns>
         public bool UploadMedia()
         {
+            UploadStatus = UploadStatusEnum.UploadInProgress;
+
             this.uploadToken = UploadMediaFile(service);
 
             if (uploadToken is null)
+            {
+                UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
                 return false;
+            }
 
+            //Not setting to success yet, as it's not yet added to Album
+            //UploadStatus = UploadStatusEnum.UploadSuccess;
             return true;
         }
 

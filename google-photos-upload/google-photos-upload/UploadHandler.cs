@@ -37,6 +37,8 @@ namespace google_photos_upload
 
         public static bool ProcessMainDirectory()
         {
+            var albumUploadResults = new List<Tuple<bool, string>>();
+
             Console.WriteLine("# Upload Child Folders in main Folder as Albums into Google Photos");
             Console.WriteLine("What is the path to the main Folder?");
             string path = Console.ReadLine();
@@ -50,14 +52,26 @@ namespace google_photos_upload
             DirectoryInfo mainDirInfo = new DirectoryInfo(path);
             foreach (var imgFolder in mainDirInfo.GetDirectories().OrderBy(di => di.Name))
             {
-                bool albumuploadresult = ProcessAlbumDirectory(imgFolder.FullName);
+                var albumuploadresult = ProcessAlbumDirectory(imgFolder.FullName);
 
-                if (!albumuploadresult)
+                albumUploadResults.Add(new Tuple<bool, string>(albumuploadresult.uploadResult, albumuploadresult.uploadResultText));
+
+                if (!albumuploadresult.uploadResult)
                 {
                     Console.WriteLine($"Upload failed of Album '{imgFolder.Name}'");
-                    //return false; Continue
                 }
             }
+
+            //Print summary for user
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("------------------------");
+            Console.WriteLine("Upload summary:");
+
+            albumUploadResults.ForEach(x => Console.WriteLine(x.Item2));
+
+            Console.WriteLine();
+            Console.WriteLine();
 
             return true;
         }
@@ -74,10 +88,26 @@ namespace google_photos_upload
                 return false;
             }
 
-            return ProcessAlbumDirectory(path);
+
+            //Process album
+            var uploadResult = ProcessAlbumDirectory(path);
+
+
+            //Print summary for user
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("------------------------");
+            Console.WriteLine("Upload summary:");
+
+            Console.WriteLine(uploadResult.uploadResultText);
+
+            Console.WriteLine();
+            Console.WriteLine();
+
+            return uploadResult.uploadResult;
         }
 
-        private static bool ProcessAlbumDirectory(string path)
+        private static (bool uploadResult, string uploadResultText) ProcessAlbumDirectory(string path)
         {
             if (!Directory.Exists(path))
                 throw new ArgumentException($"The path '{path}' was not found.");
@@ -96,8 +126,7 @@ namespace google_photos_upload
             {
                 if (!album.IsAlbumWritable)
                 {
-                    Console.WriteLine("Album not updated. For safety reasons then album created outside this utility is not updated.");
-                    return false;
+                    return (false, "Album not updated. For safety reasons then album created outside this utility is not updated.");
                 }
                 else
                 {
@@ -110,15 +139,15 @@ namespace google_photos_upload
                         if (key != 'y')
                         {
                             Console.WriteLine();
-                            Console.WriteLine($"Album will not be uploaded: {albumtitle}");
-                            Console.WriteLine();
-                            return false;
+                            album.UploadStatus = UploadStatusEnum.UploadAborted;
+                            return (false, album.ToStringUploadResult());
                         }
                     }
                     catch (Exception e)
                     {
                         _logger.LogError(e, "An error occured when evaluating user input");
-                        return false;
+                        Console.WriteLine();
+                        return (false, "An unexpected error occured, check the log");
                     }
 
                     Console.WriteLine();
@@ -129,15 +158,9 @@ namespace google_photos_upload
             //Upload the album and images to Google Photos
             bool albumuploadresult = album.UploadAlbum();
 
-            if (!albumuploadresult)
-            {
-                Console.WriteLine("WARNING: One or more issues occured during the Upload. Please check the log.");
-                return false;
-            }
 
-            Console.WriteLine($"Album '{albumtitle}' including {album.ImageUploadCount} images uploaded to Google Photos!");
-
-            return true;
+            //Upload complete, share the result
+            return (true, album.ToStringUploadResult());
         }
     }
 }

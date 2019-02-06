@@ -95,7 +95,7 @@ namespace google_photos_upload
             //Closing out
             Console.WriteLine();
             Console.WriteLine();
-            Console.WriteLine("Exiting RR Google Photos Upload. Have a nice day!");
+            Console.WriteLine("Exiting Google Photos Upload. Have a nice day!");
             Console.WriteLine();
             Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             Console.WriteLine();
