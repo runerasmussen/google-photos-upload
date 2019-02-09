@@ -6,6 +6,7 @@ using Google.Apis.PhotosLibrary.v1;
 using google_photos_upload.Model;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using google_photos_upload.Extensions;
 
 namespace google_photos_upload
 {
@@ -42,6 +43,8 @@ namespace google_photos_upload
             Console.WriteLine("# Upload Child Folders in main Folder as Albums into Google Photos");
             Console.WriteLine("What is the path to the main Folder?");
             string path = Console.ReadLine();
+
+            path = path.RemoveOsPathEscapeCharacters();
 
             if (!Directory.Exists(path))
             {
@@ -82,8 +85,11 @@ namespace google_photos_upload
             Console.WriteLine("What folder do you want to upload?");
             string path = Console.ReadLine();
 
+            path = path.RemoveOsPathEscapeCharacters();
+
             if (!Directory.Exists(path))
             {
+                _logger.LogError($"The file path could not be found: '{path}'");
                 Console.WriteLine("The folder could not be found. Please try again.");
                 return false;
             }

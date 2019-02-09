@@ -23,6 +23,20 @@ namespace google_photos_upload.Extensions
         }
 
 
+        public static string RemoveOsPathEscapeCharacters(this string filepath)
+        {
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)
+                || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+            {
+                return filepath.Replace("\\", "").TrimEnd();
+            }
+            else
+            {
+                return filepath;
+            }
+        }
+
+
         /// <summary>
         /// Changes Encoding on a string
         /// </summary>
