@@ -55,40 +55,48 @@ namespace google_photos_upload
             }
 
 
-            while (!appexit)
+            try
             {
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine("--------------------------------------------------------------------------------");
-                Console.WriteLine("Options:");
-                Console.WriteLine("1 - List current Google Photos Album");
-                Console.WriteLine("2 - Upload Single Folder into Google Photos as an Album ");
-                Console.WriteLine("3 - Upload Multiple Folders from a main Folder into Google Photos as Albums");
-                Console.WriteLine("Press any other key to close the program");
-                Console.Write("Type your number of choice: ");
-
-                short userchoice = GetUserChoice();
-
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine("--------------------------------------------------------------------------------");
-
-                switch (userchoice)
+                while (!appexit)
                 {
-                    case 1:
-                        UploadHandler.ListAlbums();
-                        break;
-                    case 2:
-                        UploadHandler.ProcessAlbumDirectory();
-                        break;
-                    case 3:
-                        UploadHandler.ProcessMainDirectory();
-                        break;
-                    default:
-                        appexit = true;
-                        break;
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine("--------------------------------------------------------------------------------");
+                    Console.WriteLine("Options:");
+                    Console.WriteLine("1 - List current Google Photos Album");
+                    Console.WriteLine("2 - Upload Single Folder into Google Photos as an Album ");
+                    Console.WriteLine("3 - Upload Multiple Folders from a main Folder into Google Photos as Albums");
+                    Console.WriteLine("Press any other key to close the program");
+                    Console.Write("Type your number of choice: ");
+
+                    short userchoice = GetUserChoice();
+
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine("--------------------------------------------------------------------------------");
+
+                    switch (userchoice)
+                    {
+                        case 1:
+                            UploadHandler.ListAlbums();
+                            break;
+                        case 2:
+                            UploadHandler.ProcessAlbumDirectory();
+                            break;
+                        case 3:
+                            UploadHandler.ProcessMainDirectory();
+                            break;
+                        default:
+                            appexit = true;
+                            break;
+                    }
+
                 }
 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An exception occured, program is being terminated");
             }
 
 

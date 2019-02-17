@@ -115,58 +115,67 @@ namespace google_photos_upload
 
         private static (bool uploadResult, string uploadResultText) ProcessAlbumDirectory(string path)
         {
-            if (!Directory.Exists(path))
-                throw new ArgumentException($"The path '{path}' was not found.");
-
-            DirectoryInfo dirInfo = new DirectoryInfo(path);
-            string albumtitle = dirInfo.Name;
-
-            Console.WriteLine();
-            Console.WriteLine($"Uploading Album: {albumtitle}");
-
-            MyAlbum album = new MyAlbum(_logger, service, albumtitle, dirInfo);
-
-
-            //Does the album already exist?
-            if (!album.IsAlbumNew)
+            try
             {
-                if (!album.IsAlbumWritable)
-                {
-                    return (false, "Album not updated. For safety reasons then album created outside this utility is not updated.");
-                }
-                else
-                {
-                    Console.Write("The album already exists, do you want to add any missing images to it? (y/n) ");
+                if (!Directory.Exists(path))
+                    throw new ArgumentException($"The path '{path}' was not found.");
 
-                    try
+                DirectoryInfo dirInfo = new DirectoryInfo(path);
+                string albumtitle = dirInfo.Name;
+
+                Console.WriteLine();
+                Console.WriteLine($"Uploading Album: {albumtitle}");
+
+                MyAlbum album = new MyAlbum(_logger, service, albumtitle, dirInfo);
+
+
+                //Does the album already exist?
+                if (!album.IsAlbumNew)
+                {
+                    if (!album.IsAlbumWritable)
                     {
-                        char key = Console.ReadKey().KeyChar;
+                        return (false, "Album not updated. For safety reasons then album created outside this utility is not updated.");
+                    }
+                    else
+                    {
+                        Console.Write("The album already exists, do you want to add any missing images to it? (y/n) ");
 
-                        if (key != 'y')
+                        try
                         {
-                            Console.WriteLine();
-                            album.UploadStatus = UploadStatusEnum.UploadAborted;
-                            return (false, album.ToStringUploadResult());
+                            char key = Console.ReadKey().KeyChar;
+
+                            if (key != 'y')
+                            {
+                                Console.WriteLine();
+                                album.UploadStatus = UploadStatusEnum.UploadAborted;
+                                return (false, album.ToStringUploadResult());
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError(e, "An error occured when evaluating user input");
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, "An error occured when evaluating user input");
+                            Console.WriteLine();
+                            return (false, "An unexpected error occured, check the log");
+                        }
+
                         Console.WriteLine();
-                        return (false, "An unexpected error occured, check the log");
                     }
-
-                    Console.WriteLine();
                 }
+
+
+                //Upload the album and images to Google Photos
+                bool albumuploadresult = album.UploadAlbum();
+
+
+                //Upload complete, share the result
+                return (true, album.ToStringUploadResult());
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An exception occured");
 
-
-            //Upload the album and images to Google Photos
-            bool albumuploadresult = album.UploadAlbum();
-
-
-            //Upload complete, share the result
-            return (true, album.ToStringUploadResult());
+                return (false, $"{path}: An exception occured during Album upload");
+            }
         }
     }
 }
