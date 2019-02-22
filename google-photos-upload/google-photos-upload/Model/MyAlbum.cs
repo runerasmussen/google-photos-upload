@@ -286,10 +286,13 @@ namespace google_photos_upload.Model
             {
                 foreach (var albumresponse in response.Albums)
                 {
-                    if (albumresponse.Title.Equals(albumTitle) || albumresponse.Title.Equals(alternateAlbumTitle))
+                    if (albumresponse != null && albumresponse.Title != null)
                     {
-                        album = albumresponse;
-                        return albumresponse;
+                        if (albumresponse.Title.Equals(albumTitle) || albumresponse.Title.Equals(alternateAlbumTitle))
+                        {
+                            album = albumresponse;
+                            return albumresponse;
+                        }
                     }
                 }
 
