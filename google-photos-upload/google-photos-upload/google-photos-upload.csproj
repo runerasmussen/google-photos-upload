@@ -13,6 +13,7 @@
     <PackageReference Include="Google.Apis.PhotosLibrary.v1" Version="1.34.0.1223" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.4.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -21,6 +21,11 @@ namespace google_photos_upload.Model
         private readonly FileInfo mediaFile = null;
         private string uploadToken = null;
 
+        //Get from config file if we should upload img without EXIF
+        bool conf_IMG_UPLOAD_NO_EXIF = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IMG_UPLOAD_NO_EXIF"]);
+
+
+
         /// <summary>
         /// Supported file formats
         /// </summary>
@@ -119,7 +124,7 @@ namespace google_photos_upload.Model
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Failed reading EXIF data...");
+                    _logger.LogWarning("Failed reading EXIF data...");
                 }
 
                 //Unable to extract EXIF data from file
@@ -137,8 +142,16 @@ namespace google_photos_upload.Model
                     {
                         // EXIF property "Date Taken Original" must be set on the image file to ensure correct date in Google Photos
                         var datetimeOriginal = DateImageWasTaken;
+
                         if (datetimeOriginal == null)
-                            return false;
+                        {
+                            if (conf_IMG_UPLOAD_NO_EXIF != true)
+                                return false;
+
+                            _logger.LogWarning("Image will appear with today's date in Google Photos as EXIF data is missing");
+                        }
+
+                        
                     }
                     else if (IsMovie)
                     {
