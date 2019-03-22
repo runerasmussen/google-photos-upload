@@ -15,9 +15,12 @@ namespace google_photos_upload
 
         static void Main(string[] args)
         {
-            var servicesProvider = BuildDi();
+            // create a new ServiceCollection 
+            var serviceCollection = new ServiceCollection();
 
-            _logger = servicesProvider.GetService<ILoggerFactory>().CreateLogger<Program>();
+            IServiceProvider serviceProvider = ConfigureServices(serviceCollection);
+
+            _logger = serviceProvider.GetService<ILogger<Program>>();
 
             DrawConsoleInterface();
 
@@ -128,24 +131,24 @@ namespace google_photos_upload
             return choice;
         }
 
-        private static IServiceProvider BuildDi()
+
+        private static IServiceProvider ConfigureServices(IServiceCollection serviceCollection)
         {
-            var services = new ServiceCollection()
-                .AddLogging();
+            serviceCollection.AddLogging();
 
-            services.AddSingleton<ILoggerFactory, LoggerFactory>();
-            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+            serviceCollection.AddSingleton<ILoggerFactory, LoggerFactory>();
+            serviceCollection.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
 
-            var servicesProvider = services.BuildServiceProvider();
-
-            var loggerFactory = servicesProvider.GetRequiredService<ILoggerFactory>();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 
 
             //configure NLog
             loggerFactory.AddNLog(new NLogProviderOptions { CaptureMessageTemplates = true, CaptureMessageProperties = true });
             NLog.LogManager.LoadConfiguration("nlog.config");
 
-            return servicesProvider;
+            return serviceProvider;
         }
     }
 }
