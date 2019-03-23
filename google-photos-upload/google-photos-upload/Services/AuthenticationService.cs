@@ -2,13 +2,16 @@
 using Google.Apis.PhotosLibrary.v1;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 
-namespace google_photos_upload
+namespace google_photos_upload.Services
 {
-    static class ServiceHandler
+    public class AuthenticationService
     {
         // If modifying these scopes, delete your previously saved credentials
         // at ~/.credentials/rr-google-photos-upload.json
@@ -18,11 +21,22 @@ namespace google_photos_upload
             PhotosLibraryService.Scope.PhotoslibraryReadonly
         };
         static readonly string ApplicationName = "RR Google Photos Upload";
-
+        private readonly ILogger<AuthenticationService> logger;
         static UserCredential credential = null;
 
 
-        private static void Authenticate()
+        //Constructor
+        public AuthenticationService(ILogger<AuthenticationService> logger)
+        {
+            this.logger = logger;
+        }
+
+
+        /// <summary>
+        /// Perform an authentication and authorization via the default web browser
+        /// to enable authorization for the App to access/edit Google Photos content.
+        /// </summary>
+        private void AuthenticateAuthorize()
         {
             using (var stream =
                 new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
@@ -35,9 +49,9 @@ namespace google_photos_upload
                 if (!Directory.Exists(credPath) || Directory.GetFiles(credPath).Length == 0)
                 {
                     newlyAuthenticated = true;
-                    Console.WriteLine("The application requires your permission to access to Google Photos account.");
-                    Console.WriteLine("Your default web browser will open now with a Google Authentication webpage");
-                    Console.WriteLine("so you safely can grant permission to this app.");
+                    logger.LogInformation("The application requires your permission to access to Google Photos account.");
+                    logger.LogInformation("Your default web browser will open now with a Google Authentication webpage");
+                    logger.LogInformation("so you safely can grant permission to this app.");
                     Thread.Sleep(5000);
                 }
 
@@ -53,17 +67,21 @@ namespace google_photos_upload
 
                 if (newlyAuthenticated)
                 {
-                    Console.WriteLine($"Credential file saved to: {credPath}");
+                    logger.LogInformation($"Credential file saved to: {credPath}");
                 }
 
-                Console.WriteLine("Authentiation complete.");
+                logger.LogInformation("Authentiation complete.");
             }
         }
 
-        public static PhotosLibraryService GetPhotosLibraryService()
+        /// <summary>
+        /// Get an instance of the Google Photos Library Service (includes authentication and authorization)
+        /// </summary>
+        /// <returns></returns>
+        public PhotosLibraryService GetPhotosLibraryService()
         {
             if (credential == null)
-                Authenticate();
+                AuthenticateAuthorize();
 
             // Create Google Photos API service.
             var service = new PhotosLibraryService(new BaseClientService.Initializer()

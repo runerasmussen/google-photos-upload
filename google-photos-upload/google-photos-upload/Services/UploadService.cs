@@ -1,42 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using Google.Apis.PhotosLibrary.v1;
+﻿using Google.Apis.PhotosLibrary.v1;
+using google_photos_upload.Extensions;
 using google_photos_upload.Model;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using google_photos_upload.Extensions;
+using System.Text;
 
-namespace google_photos_upload
+namespace google_photos_upload.Services
 {
-    public static class UploadHandler
+    public class UploadService
     {
-        private static ILogger _logger;
-
+        private ILogger<UploadService> logger;
+        private readonly AuthenticationService authenticationService;
         private static PhotosLibraryService service = null;
 
-        public static bool Initialize(ILogger logger)
+        public UploadService(ILogger<UploadService> logger, AuthenticationService authenticationService)
         {
-            _logger = logger;
+            this.logger = logger;
+            this.authenticationService = authenticationService;
+        }
 
-            service = ServiceHandler.GetPhotosLibraryService();
+        public bool Initialize()
+        {
+            service = authenticationService.GetPhotosLibraryService();
 
             if (service is null)
             {
-                _logger.LogCritical("Initialize of Google Photos API Authentication failed");
+                logger.LogCritical("Initialize of Google Photos API Authentication failed");
                 return false;
             }
 
             return true;
         }
 
-        public static void ListAlbums()
+        public void ListAlbums()
         {
-            MyAlbum.ListAlbums(service, _logger);
+            MyAlbum.ListAlbums(service, logger);
         }
 
-        public static bool ProcessMainDirectory()
+        public bool ProcessMainDirectory()
         {
             var albumUploadResults = new List<Tuple<bool, string>>();
 
@@ -79,7 +83,7 @@ namespace google_photos_upload
             return true;
         }
 
-        public static bool ProcessAlbumDirectory()
+        public bool ProcessAlbumDirectory()
         {
             Console.WriteLine("# Upload Folder as Album into Google Photos");
             Console.WriteLine("What folder do you want to upload?");
@@ -89,7 +93,7 @@ namespace google_photos_upload
 
             if (!Directory.Exists(path))
             {
-                _logger.LogError($"The file path could not be found: '{path}'");
+                logger.LogError($"The file path could not be found: '{path}'");
                 Console.WriteLine("The folder could not be found. Please try again.");
                 return false;
             }
@@ -113,7 +117,7 @@ namespace google_photos_upload
             return uploadResult.uploadResult;
         }
 
-        private static (bool uploadResult, string uploadResultText) ProcessAlbumDirectory(string path)
+        private (bool uploadResult, string uploadResultText) ProcessAlbumDirectory(string path)
         {
             try
             {
@@ -126,7 +130,7 @@ namespace google_photos_upload
                 Console.WriteLine();
                 Console.WriteLine($"Uploading Album: {albumtitle}");
 
-                MyAlbum album = new MyAlbum(_logger, service, albumtitle, dirInfo);
+                MyAlbum album = new MyAlbum(logger, service, albumtitle, dirInfo);
 
 
                 //Does the album already exist?
@@ -147,13 +151,13 @@ namespace google_photos_upload
                             if (key != 'y')
                             {
                                 Console.WriteLine();
-                                album.UploadStatus = UploadStatusEnum.UploadAborted;
+                                album.UploadStatus = UploadStatus.UploadAborted;
                                 return (false, album.ToStringUploadResult());
                             }
                         }
                         catch (Exception e)
                         {
-                            _logger.LogError(e, "An error occured when evaluating user input");
+                            logger.LogError(e, "An error occured when evaluating user input");
                             Console.WriteLine();
                             return (false, "An unexpected error occured, check the log");
                         }
@@ -164,7 +168,7 @@ namespace google_photos_upload
 
 
                 //Upload the album and images to Google Photos
-                bool albumuploadresult = album.UploadAlbum();
+                album.UploadAlbum();
 
 
                 //Upload complete, share the result
@@ -172,10 +176,11 @@ namespace google_photos_upload
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An exception occured");
+                logger.LogError(ex, $"An exception occured during processing of '{path}'");
 
                 return (false, $"{path}: An exception occured during Album upload");
             }
         }
+
     }
 }

@@ -15,6 +15,7 @@ namespace google_photos_upload.Model
 {
     class MyImage
     {
+        private const string PhotosLibraryPasebath = "https://photoslibrary.googleapis.com/v1/uploads";
         private readonly ILogger _logger = null;
         private readonly PhotosLibraryService service = null;
 
@@ -22,7 +23,7 @@ namespace google_photos_upload.Model
         private string uploadToken = null;
 
         //Get from config file if we should upload img without EXIF
-        bool conf_IMG_UPLOAD_NO_EXIF = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IMG_UPLOAD_NO_EXIF"]);
+        private readonly bool conf_IMG_UPLOAD_NO_EXIF = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IMG_UPLOAD_NO_EXIF"]);
 
 
 
@@ -39,12 +40,12 @@ namespace google_photos_upload.Model
             this._logger = logger;
             this.service = photoService;
             this.mediaFile = imgFile;
-            this.UploadStatus = UploadStatusEnum.NotStarted;
+            this.UploadStatus = UploadStatus.NotStarted;
         }
 
 
 
-        public UploadStatusEnum UploadStatus
+        public UploadStatus UploadStatus
         {
             get;
             set;
@@ -122,7 +123,7 @@ namespace google_photos_upload.Model
                     //Unable to get date
                     return null;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     _logger.LogWarning("Failed reading EXIF data...");
                 }
@@ -145,7 +146,7 @@ namespace google_photos_upload.Model
 
                         if (datetimeOriginal == null)
                         {
-                            if (conf_IMG_UPLOAD_NO_EXIF != true)
+                            if (!conf_IMG_UPLOAD_NO_EXIF)
                                 return false;
 
                             _logger.LogWarning("Image will appear with today's date in Google Photos as EXIF data is missing");
@@ -181,18 +182,18 @@ namespace google_photos_upload.Model
         /// <returns></returns>
         public bool UploadMedia()
         {
-            UploadStatus = UploadStatusEnum.UploadInProgress;
+            UploadStatus = UploadStatus.UploadInProgress;
 
             this.uploadToken = UploadMediaFile(service);
 
             if (uploadToken is null)
             {
-                UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
+                UploadStatus = UploadStatus.UploadNotSuccessfull;
                 return false;
             }
 
-            //Not setting to success yet, as it's not yet added to Album
-            //UploadStatus = UploadStatusEnum.UploadSuccess;
+            //UploadStatus will be set to 'UploadSuccess' later after it has been added to Album
+
             return true;
         }
 
@@ -228,7 +229,7 @@ namespace google_photos_upload.Model
                     httpContent.Headers.Add("X-Goog-Upload-Protocol", "raw");
 
 
-                    HttpResponseMessage mediaResponse = photoService.HttpClient.PostAsync("https://photoslibrary.googleapis.com/v1/uploads", httpContent).Result;
+                    HttpResponseMessage mediaResponse = photoService.HttpClient.PostAsync(PhotosLibraryPasebath, httpContent).Result;
 
                     if (mediaResponse.IsSuccessStatusCode)
                         newUploadToken = mediaResponse.Content.ReadAsStringAsync().Result;

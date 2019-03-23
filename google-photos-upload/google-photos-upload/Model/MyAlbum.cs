@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace google_photos_upload.Model
 {
-    enum UploadStatusEnum
+    enum UploadStatus
     {
         NotStarted,
         UploadInProgress,
@@ -37,7 +37,7 @@ namespace google_photos_upload.Model
             this.service = service;
             this.albumTitle = albumTitle;
             this.dirInfo = dirInfo;
-            this.UploadStatus = UploadStatusEnum.NotStarted;
+            this.UploadStatus = UploadStatus.NotStarted;
         }
 
 
@@ -45,7 +45,7 @@ namespace google_photos_upload.Model
 
         #region Properties
 
-        public UploadStatusEnum UploadStatus {
+        public UploadStatus UploadStatus {
             get;
             set;
         }
@@ -93,13 +93,13 @@ namespace google_photos_upload.Model
 
         public string ToStringUploadResult()
         {
-            int photoUploadSuccess = myImages.Where(x => x.IsPhoto && x.UploadStatus == UploadStatusEnum.UploadSuccess).Count();
-            int movieUploadSuccess = myImages.Where(x => x.IsMovie && x.UploadStatus == UploadStatusEnum.UploadSuccess).Count();
-            int photoCount = myImages.Where(x => x.IsPhoto).Count();
-            int movieCount = myImages.Where(x => x.IsMovie).Count();
-            int failureCount = myImages.Where(x => x.UploadStatus == UploadStatusEnum.UploadNotSuccessfull).Count();
+            int photoUploadSuccess = myImages.Count(x => x.IsPhoto && x.UploadStatus == UploadStatus.UploadSuccess);
+            int movieUploadSuccess = myImages.Count(x => x.IsMovie && x.UploadStatus == UploadStatus.UploadSuccess);
+            int photoCount = myImages.Count(x => x.IsPhoto);
+            int movieCount = myImages.Count(x => x.IsMovie);
+            int failureCount = myImages.Count(x => x.UploadStatus == UploadStatus.UploadNotSuccessfull);
 
-            if (UploadStatus == UploadStatusEnum.UploadAborted)
+            if (UploadStatus == UploadStatus.UploadAborted)
                 return $"{albumTitle}: Upload aborted.";
 
             return $"{albumTitle}: " +
@@ -151,14 +151,14 @@ namespace google_photos_upload.Model
         /// </summary>
         public bool UploadAlbum()
         {
-            UploadStatus = UploadStatusEnum.UploadInProgress;
+            UploadStatus = UploadStatus.UploadInProgress;
 
             //Check if Album already exists and if it's writable
             //Get Album if it exists
             if (!IsAlbumNew &&!IsAlbumWritable)
             {
                 _logger.LogError($"Album '{albumTitle}' already exists and is not writable (was created outside of this utility). For safety reasons by design such Albums will not be updated.");
-                UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
+                UploadStatus = UploadStatus.UploadNotSuccessfull;
                 return false;
             }
 
@@ -173,7 +173,7 @@ namespace google_photos_upload.Model
             if (ImageUploadCount == 0 || myImages.Count == 0)
             {
                 _logger.LogError("Zero images were succesfully uploaded. Album will not be created");
-                UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
+                UploadStatus = UploadStatus.UploadNotSuccessfull;
                 return false;
             }
 
@@ -196,7 +196,7 @@ namespace google_photos_upload.Model
                 if (album is null)
                 {
                     _logger.LogError($"Album '{albumTitle}' not found after it was created. Aborting.");
-                    UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
+                    UploadStatus = UploadStatus.UploadNotSuccessfull;
                     return false;
                 }
 
@@ -217,11 +217,11 @@ namespace google_photos_upload.Model
             //Add the uploaded images to the Users Google Photo account and into a specific album
             if (!AddPhotosToAlbum())
             {
-                UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
+                UploadStatus = UploadStatus.UploadNotSuccessfull;
                 return false;
             }
 
-            UploadStatus = UploadStatusEnum.UploadSuccess;
+            UploadStatus = UploadStatus.UploadSuccess;
             return true;
         }
 
@@ -245,7 +245,7 @@ namespace google_photos_upload.Model
 
                         if (!imguploadresult)
                         {
-                            myImage.UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
+                            myImage.UploadStatus = UploadStatus.UploadNotSuccessfull;
 
                             uploadresult = false;
                             _logger.LogError("Image upload failed");
@@ -253,7 +253,7 @@ namespace google_photos_upload.Model
                     }
                     else
                     {
-                        myImage.UploadStatus = UploadStatusEnum.UploadNotSuccessfull;
+                        myImage.UploadStatus = UploadStatus.UploadNotSuccessfull;
                         uploadresult = false;
                         _logger.LogWarning($"NOT uploading '{myImage.Name}' due to file type not supported or EXIF data issue");
                     }
@@ -286,14 +286,13 @@ namespace google_photos_upload.Model
             {
                 foreach (var albumresponse in response.Albums)
                 {
-                    if (albumresponse != null && albumresponse.Title != null)
-                    {
-                        if (albumresponse.Title.Equals(albumTitle) || albumresponse.Title.Equals(alternateAlbumTitle))
+                    if (albumresponse != null && albumresponse.Title != null
+                        && (albumresponse.Title.Equals(albumTitle) || albumresponse.Title.Equals(alternateAlbumTitle))
+                    )
                         {
                             album = albumresponse;
                             return albumresponse;
                         }
-                    }
                 }
 
                 //Fetch next page of Albums
@@ -340,7 +339,7 @@ namespace google_photos_upload.Model
             int imagesAddedToAlbum = 0;
 
             //Divide into batches, due to API limitation
-            var batches = myImages.Where(x => x.UploadStatus == UploadStatusEnum.UploadInProgress).Batch<MyImage>(maxBatchSize);
+            var batches = myImages.Where(x => x.UploadStatus == UploadStatus.UploadInProgress).Batch<MyImage>(maxBatchSize);
 
             //Process each batch
             foreach (var batch in batches)
@@ -351,11 +350,11 @@ namespace google_photos_upload.Model
                 //Set upload end status as upload is now completed
                 if (imagesNewlyAdded == batch.Count())
                 {
-                    batch.ToList<MyImage>().ForEach(x => x.UploadStatus = UploadStatusEnum.UploadSuccess);
+                    batch.ToList<MyImage>().ForEach(x => x.UploadStatus = UploadStatus.UploadSuccess);
                 }
                 else
                 {
-                    batch.ToList<MyImage>().ForEach(x => x.UploadStatus = UploadStatusEnum.UploadNotSuccessfull);
+                    batch.ToList<MyImage>().ForEach(x => x.UploadStatus = UploadStatus.UploadNotSuccessfull);
                 }
 
                 _logger.LogDebug($"Added {imagesAddedToAlbum} images to Album '{albumTitle}'");
