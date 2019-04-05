@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace google_photos_upload.Services
 {
-    public class AuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         // If modifying these scopes, delete your previously saved credentials
         // at ~/.credentials/rr-google-photos-upload.json
@@ -20,9 +20,9 @@ namespace google_photos_upload.Services
             PhotosLibraryService.Scope.PhotoslibraryReadonlyAppcreateddata,
             PhotosLibraryService.Scope.PhotoslibraryReadonly
         };
-        static readonly string ApplicationName = "RR Google Photos Upload";
+        private const string ApplicationName = "RR Google Photos Upload";
         private readonly ILogger<AuthenticationService> logger;
-        static UserCredential credential = null;
+        private UserCredential credential = null;
 
 
         //Constructor

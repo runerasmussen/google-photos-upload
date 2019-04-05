@@ -19,8 +19,8 @@ namespace google_photos_upload
             IServiceProvider serviceProvider = ConfigureServices(serviceCollection);
 
             // Instantiate the App Runner class
-            var runner = serviceProvider.GetRequiredService<Runner>();
-            runner.DoAction();
+            var app = serviceProvider.GetRequiredService<App>();
+            app.DoAction(args);
 
             // Nlog shutdown - ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
             NLog.LogManager.Shutdown();
@@ -46,11 +46,11 @@ namespace google_photos_upload
                 })
 
                 //Register the App Runner class
-                .AddTransient<Runner>()
+                .AddTransient<App>()
 
                 //Register the App Service classes
-                .AddSingleton<UploadService>()
-                .AddSingleton<AuthenticationService>()
+                .AddSingleton<IUploadService, UploadService>()
+                .AddSingleton<IAuthenticationService, AuthenticationService>()
 
                 //Finally build the ServiceProvider and return it
                 .BuildServiceProvider();

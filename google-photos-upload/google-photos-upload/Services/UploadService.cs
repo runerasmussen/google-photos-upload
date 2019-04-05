@@ -10,13 +10,13 @@ using System.Text;
 
 namespace google_photos_upload.Services
 {
-    public class UploadService
+    public class UploadService : IUploadService
     {
-        private ILogger<UploadService> logger;
-        private readonly AuthenticationService authenticationService;
-        private static PhotosLibraryService service = null;
+        private readonly ILogger<UploadService> logger;
+        private readonly IAuthenticationService authenticationService;
+        private PhotosLibraryService service = null;
 
-        public UploadService(ILogger<UploadService> logger, AuthenticationService authenticationService)
+        public UploadService(ILogger<UploadService> logger, IAuthenticationService authenticationService)
         {
             this.logger = logger;
             this.authenticationService = authenticationService;
@@ -40,13 +40,17 @@ namespace google_photos_upload.Services
             MyAlbum.ListAlbums(service, logger);
         }
 
-        public bool ProcessMainDirectory()
+        public bool ProcessMainDirectory(string directorypath, bool? addifalbumexists)
         {
             var albumUploadResults = new List<Tuple<bool, string>>();
+            string path = directorypath;
 
-            Console.WriteLine("# Upload Child Folders in main Folder as Albums into Google Photos");
-            Console.WriteLine("What is the path to the main Folder?");
-            string path = Console.ReadLine();
+            if (path is null)
+            {
+                Console.WriteLine("# Upload Child Folders in main Folder as Albums into Google Photos");
+                Console.WriteLine("What is the path to the main Folder?");
+                path = Console.ReadLine();
+            }
 
             path = path.RemoveOsPathEscapeCharacters();
 
@@ -59,7 +63,7 @@ namespace google_photos_upload.Services
             DirectoryInfo mainDirInfo = new DirectoryInfo(path);
             foreach (var imgFolder in mainDirInfo.GetDirectories().OrderBy(di => di.Name))
             {
-                var albumuploadresult = ProcessAlbumDirectory(imgFolder.FullName);
+                var albumuploadresult = ProcessAlbumDirectoryUpload(imgFolder.FullName, addifalbumexists);
 
                 albumUploadResults.Add(new Tuple<bool, string>(albumuploadresult.uploadResult, albumuploadresult.uploadResultText));
 
@@ -83,11 +87,17 @@ namespace google_photos_upload.Services
             return true;
         }
 
-        public bool ProcessAlbumDirectory()
+        public bool ProcessAlbumDirectory(string directorypath, bool? addifalbumexists)
         {
-            Console.WriteLine("# Upload Folder as Album into Google Photos");
-            Console.WriteLine("What folder do you want to upload?");
-            string path = Console.ReadLine();
+            string path = directorypath;
+
+            //If directory path is not provided from command parameter then ask user what the path is
+            if (path is null)
+            {
+                Console.WriteLine("# Upload Folder as Album into Google Photos");
+                Console.WriteLine("What folder do you want to upload?");
+                path = Console.ReadLine();
+            }
 
             path = path.RemoveOsPathEscapeCharacters();
 
@@ -100,7 +110,7 @@ namespace google_photos_upload.Services
 
 
             //Process album
-            var uploadResult = ProcessAlbumDirectory(path);
+            var uploadResult = ProcessAlbumDirectoryUpload(path, addifalbumexists);
 
 
             //Print summary for user
@@ -117,7 +127,7 @@ namespace google_photos_upload.Services
             return uploadResult.uploadResult;
         }
 
-        private (bool uploadResult, string uploadResultText) ProcessAlbumDirectory(string path)
+        private (bool uploadResult, string uploadResultText) ProcessAlbumDirectoryUpload(string path, bool? addifalbumexists)
         {
             try
             {
@@ -138,31 +148,40 @@ namespace google_photos_upload.Services
                 {
                     if (!album.IsAlbumWritable)
                     {
-                        return (false, "Album not updated. For safety reasons then album created outside this utility is not updated.");
+                        return (false, "Album not updated. For safety reasons then an album created outside this utility is not updated.");
                     }
                     else
                     {
-                        Console.Write("The album already exists, do you want to add any missing images to it? (y/n) ");
-
-                        try
+                        //Ask user if existing Album should be updated, if answer not provided through program args
+                        if (addifalbumexists == null)
                         {
-                            char key = Console.ReadKey().KeyChar;
+                            Console.Write("The album already exists, do you want to add any missing images to it? (y/n) ");
 
-                            if (key != 'y')
+                            try
                             {
-                                Console.WriteLine();
-                                album.UploadStatus = UploadStatus.UploadAborted;
-                                return (false, album.ToStringUploadResult());
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogError(e, "An error occured when evaluating user input");
-                            Console.WriteLine();
-                            return (false, "An unexpected error occured, check the log");
-                        }
+                                char key = Console.ReadKey().KeyChar;
 
-                        Console.WriteLine();
+                                if (key != 'y')
+                                {
+                                    Console.WriteLine();
+                                    album.UploadStatus = UploadStatus.UploadAborted;
+                                    return (false, album.ToStringUploadResult());
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                logger.LogError(e, "An error occured when evaluating user input");
+                                Console.WriteLine();
+                                return (false, "An unexpected error occured, check the log");
+                            }
+
+                            Console.WriteLine();
+                        }
+                        else if (addifalbumexists == false)
+                        {
+                            logger.LogInformation("The album already exists and is not updated.");
+                            return (false, album.ToStringUploadResult());
+                        }
                     }
                 }
 
