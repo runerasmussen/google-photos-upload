@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.PhotosLibrary.v1;
+using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,8 @@ namespace google_photos_upload.Services
         static readonly string[] Scopes = {
             PhotosLibraryService.Scope.PhotoslibraryAppendonly,
             PhotosLibraryService.Scope.PhotoslibraryReadonlyAppcreateddata,
-            PhotosLibraryService.Scope.PhotoslibraryReadonly
+            PhotosLibraryService.Scope.PhotoslibraryReadonly,
+            DriveService.Scope.DrivePhotosReadonly,
         };
         private const string ApplicationName = "RR Google Photos Upload";
         private readonly ILogger<AuthenticationService> logger;
@@ -43,7 +45,7 @@ namespace google_photos_upload.Services
             {
                 string credPath = System.Environment.GetFolderPath(
                     System.Environment.SpecialFolder.Personal);
-                credPath = Path.Combine(credPath, ".credentials/rr-google-photos-upload.json");
+                credPath = Path.Combine(credPath, ".credentials/google-photos-upload.json");
                 bool newlyAuthenticated = false;
 
                 if (!Directory.Exists(credPath) || Directory.GetFiles(credPath).Length == 0)
@@ -85,6 +87,21 @@ namespace google_photos_upload.Services
 
             // Create Google Photos API service.
             var service = new PhotosLibraryService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName,
+            });
+            return service;
+        }
+
+
+        public DriveService GetDriveService()
+        {
+            if (credential == null)
+                AuthenticateAuthorize();
+
+            // Create Google Photos API service.
+            var service = new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
                 ApplicationName = ApplicationName,

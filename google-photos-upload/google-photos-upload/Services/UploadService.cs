@@ -1,4 +1,6 @@
-﻿using Google.Apis.PhotosLibrary.v1;
+﻿using Google.Apis.Drive.v3;
+using Google.Apis.Drive.v3.Data;
+using Google.Apis.PhotosLibrary.v1;
 using google_photos_upload.Extensions;
 using google_photos_upload.Model;
 using Microsoft.Extensions.Logging;
@@ -15,6 +17,7 @@ namespace google_photos_upload.Services
         private readonly ILogger<UploadService> logger;
         private readonly IAuthenticationService authenticationService;
         private PhotosLibraryService service = null;
+        private DriveService driveService = null;
 
         public UploadService(ILogger<UploadService> logger, IAuthenticationService authenticationService)
         {
@@ -25,8 +28,9 @@ namespace google_photos_upload.Services
         public bool Initialize()
         {
             service = authenticationService.GetPhotosLibraryService();
+            driveService = authenticationService.GetDriveService();
 
-            if (service is null)
+            if (service is null || driveService is null)
             {
                 logger.LogCritical("Initialize of Google Photos API Authentication failed");
                 return false;
@@ -127,6 +131,55 @@ namespace google_photos_upload.Services
             return uploadResult.uploadResult;
         }
 
+        private bool SpaceAvailableForMediaFolder(DirectoryInfo directoryInfo)
+        {
+            long bufferspace = 0;
+            var foldersize = directoryInfo.GetDirectorySize();
+            var googleDriveSpaceAvailable = GetGoogleDriveSpaceAvailable();
+
+            if ((googleDriveSpaceAvailable - bufferspace) < foldersize)
+            {
+                var foldersizeMb = foldersize / 1024.0F / 1024.0F;
+                var googleDriveSpaceAvailableMb = googleDriveSpaceAvailable / 1024.0F / 1024.0F;
+
+                logger.LogWarning("There is not sufficient space available in your Google Account to upload this folder.");
+                logger.LogWarning($"{foldersizeMb} Mb required, only {googleDriveSpaceAvailableMb} available");
+
+                return false;
+            }
+
+            return true;
+        }
+
+
+        private long GetGoogleDriveSpaceAvailable()
+        {
+            long storageAvailable = -1;
+
+            AboutResource.GetRequest getRequest = driveService.About.Get();
+            getRequest.Fields = "*";
+            About about = getRequest.Execute();
+
+            long? storageLimit = about.StorageQuota.Limit;
+            long? storageUsage = about.StorageQuota.Usage;
+
+
+
+            if (!(storageLimit is null || storageUsage is null))
+            {
+                long storageLimitValue = (long)storageLimit;
+                long storageUsageValue = (long)storageUsage;
+
+                storageAvailable = storageLimitValue - storageUsageValue;
+            }
+
+            logger.LogDebug($"Google account space limit (bytes): {storageLimit}");
+            logger.LogDebug($"Google account space used (bytes): {storageUsage}");
+            logger.LogDebug($"Google account space available (bytes): {storageAvailable}");
+
+            return storageAvailable;
+        }
+
         private (bool uploadResult, string uploadResultText) ProcessAlbumDirectoryUpload(string path, bool? addifalbumexists)
         {
             try
@@ -135,6 +188,14 @@ namespace google_photos_upload.Services
                     throw new ArgumentException($"The path '{path}' was not found.");
 
                 DirectoryInfo dirInfo = new DirectoryInfo(path);
+
+
+                //Verify there is sufficient disk space
+                if (!SpaceAvailableForMediaFolder(dirInfo))
+                    return (false, "Album not uploaded. Not sufficient storage space in Google Photos.");
+
+
+                
                 string albumtitle = dirInfo.Name;
 
                 Console.WriteLine();

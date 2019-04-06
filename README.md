@@ -23,9 +23,9 @@ For troubleshooting during execution look at the log file found in log/google-ph
    * On Windows 10: double click "google-photos-upload.exe"
    * For command parameter options in a command prompt execute "google-photos-upload.exe -h"
 3. Follow the instructions in the application to upload images
-4. Recover Storage: Open [Google Photos Settings website](https://photos.google.com/settings)
+4. Optional: Recover Storage; Open [Google Photos Settings website](https://photos.google.com/settings)
 and Click 'Recover Storage' (will downgrade ALL your media from Original down to High Quality)
-
+5. Optional: Remove the file ".credentials/google-photos-upload.json" in your Personal home folder, if access is no longer needed.
 
 ### User Guide for Mac, Linux and Win10 (smaller, but dotnet core installation required)
 1. Install the [.NET Core runtime version 2.1 or later](https://www.microsoft.com/net/download)
@@ -34,9 +34,9 @@ and Click 'Recover Storage' (will downgrade ALL your media from Original down to
    * On a shell / command prompt: dotnet google-photos-upload.dll
    * For command parameter options in a command prompt execute "dotnet google-photos-upload.dll -h"
 4. Follow the instructions in the application to upload images
-5. Recover Storage: Open [Google Photos Settings website](https://photos.google.com/settings)
+5. Optional: Recover Storage; Open [Google Photos Settings website](https://photos.google.com/settings)
 and Click 'Recover Storage' (will downgrade ALL your photos from Original down to High Quality)
-
+6. Optional: Remove the file ".credentials/google-photos-upload.json" in your Personal home folder, if access is no longer needed.
 
 
 
@@ -54,9 +54,9 @@ This is optional. There is a key provided in the source code which has constrain
 # API references
 * [Google Photos API v1](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/) / [Google Photos API homepage](https://developers.google.com/photos/) enables the API integration for Google Photos.
 * [ExifLibrary](https://github.com/devedse/exiflibrary) reads Image Exif properties to ensure Image date is correct before upload.
-* [.NET Core](https://dot.net)
-* [NLog](https://nlog-project.org/)
-* COMING SOON: [Mono.Options](https://github.com/xamarin/XamarinComponents/tree/master/XPlat/Mono.Options) by the Xamarin team processes commandline arguments.
+* [.NET Core](https://dot.net) as runtime engine.
+* [NLog](https://nlog-project.org/) for logging.
+* [Mono.Options](https://github.com/xamarin/XamarinComponents/tree/master/XPlat/Mono.Options) by the Xamarin team processes commandline arguments.
 
 
 # Contribute
