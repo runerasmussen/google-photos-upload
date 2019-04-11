@@ -2,34 +2,35 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=runerasmussen_google-photos-upload&metric=alert_status)](https://sonarcloud.io/dashboard?id=runerasmussen_google-photos-upload)
 
 # Introduction
-Upload a local image directory into an Album in Google Photos. Works cross platform on mac/pc/linux.
+Desktop tool to upload a local image directory into an Album in Google Photos. Works cross platform on mac/pc/linux.
 
 Features:
 * List current Albums in Google Photos
 * Upload a directory into Google Photos as an Album
 * Upload subdirectories from a main directory into Google Photos as Albums
 
-Coded in .NET Core and leveraging the [Google Photos API](https://developers.google.com/photos/).
+Coded in .NET Core and leveraging the Google Photos API.
 
 
 # User Guide
 Ready to give it a try?<br />
 Please note that this is a hobby project and comes without any warranty, but seem to work fine!
 
-For troubleshooting during execution look at the log file found in log/google-photos-upload.log
+If you run into an issue then take a look at the log file found in log/google-photos-upload.log
 
 
-**Permission to access your Google Photos account**
-
-The tool will ask for your permission to access your Google Photos account (see details below) and will share or use this access beyond your computer.
-The access token file '.credentials/google-photos-upload.json' can be removed from your computer anytime you want to revoke the permissions.
+### Permission to access your Google Photos account
+The tool will ask for your permission to access your Google Photos account (see table below) and will **not** share or use this access beyond your computer.
 
 Permission | Used for
 ------------ | -------------
 View your Google Photos library | Identify if an Album already exists
 View the photos, videos and albums in your Google Photos | Identify available storage space in your Google Account
 Add to your Google Photos library | Create new Albums and upload Image/Movie files
-Manage photos added by this app | Append/update Albums that have been created by this tool
+
+To revoke the permissions you should:
+1. Remove the token file '.credentials/google-photos-upload.json'.
+2. Remove the tool from your list of [Apps with access to your Google account](https://myaccount.google.com/permissions)
 
 ### User Guide for Windows 10 (no requirement for dotnet core installation)
 1. Download the latest release for your operating system [here](https://github.com/runerasmussen/google-photos-upload/releases/latest)
@@ -39,7 +40,7 @@ Manage photos added by this app | Append/update Albums that have been created by
 3. Follow the instructions in the application to upload images
 4. Optional: Recover Storage; Open [Google Photos Settings website](https://photos.google.com/settings)
 and Click 'Recover Storage' (will downgrade ALL your media from Original down to High Quality)
-5. Optional: Remove the file ".credentials/google-photos-upload.json" in your Personal home folder, if access is no longer needed.
+5. Optional: Remove the permission to access your Google Photos Account (see [Permissions](#Permission-to-access-your-Google-Photos-account)).
 
 ### User Guide for Mac, Linux and Win10 (smaller, but dotnet core installation required)
 1. Install the [.NET Core runtime version 2.1 or later](https://www.microsoft.com/net/download)
@@ -50,8 +51,7 @@ and Click 'Recover Storage' (will downgrade ALL your media from Original down to
 4. Follow the instructions in the application to upload images
 5. Optional: Recover Storage; Open [Google Photos Settings website](https://photos.google.com/settings)
 and Click 'Recover Storage' (will downgrade ALL your photos from Original down to High Quality)
-6. Optional: Remove the file ".credentials/google-photos-upload.json" in your Personal home folder, if access is no longer needed.
-
+6. Optional: Remove the permission to access your Google Photos Account (see [Permissions](#Permission-to-access-your-Google-Photos-account)).
 
 
 

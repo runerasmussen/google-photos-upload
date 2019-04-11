@@ -18,7 +18,7 @@ namespace google_photos_upload.Services
         // at ~/.credentials/rr-google-photos-upload.json
         static readonly string[] Scopes = {
             PhotosLibraryService.Scope.PhotoslibraryAppendonly,
-            PhotosLibraryService.Scope.PhotoslibraryReadonlyAppcreateddata,
+            //PhotosLibraryService.Scope.PhotoslibraryReadonlyAppcreateddata, //The app need to identify if an album already exists.
             PhotosLibraryService.Scope.PhotoslibraryReadonly,
             DriveService.Scope.DrivePhotosReadonly,
         };
