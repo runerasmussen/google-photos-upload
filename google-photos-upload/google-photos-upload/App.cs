@@ -86,10 +86,8 @@ namespace google_photos_upload
                 ShowHelp(options);
                 return;
             }
-            else
-            {
-                Execute(command, shouldShowHelp, directorypath, addifalbumexists);
-            }
+
+            Execute(command, directorypath, addifalbumexists);
 
 
             //Closing out
@@ -102,51 +100,50 @@ namespace google_photos_upload
             Console.WriteLine();
         }
 
-        private void Execute(short command, bool shouldShowHelp, string directorypath, bool? addifalbumexists)
+        private void Execute(short command, string directorypath, bool? addifalbumexists)
         {
-            bool appexit = true;
-
             try
             {
+                bool appexit = true;
+
+                //Authenticate
                 if (!uploadService.Initialize())
                 {
                     logger.LogError("Critical error occured - could not establish authentication with Google");
                     Console.WriteLine("See log for details.");
                     Console.WriteLine("Press any key to exit");
                     Console.ReadKey();
-
-                    appexit = true;
+                    return;
                 }
-                else
+
+                //Do the requested command
+                do
                 {
-                    do
+                    var c = Convert.ToInt16(command);
+
+                    if (c == 0)
                     {
-                        var c = Convert.ToInt16(command);
-
-                        if (c == 0)
-                        {
-                            c = GetManualUserChoice();
-                            appexit = false; //Keep the user interface open to get more 
-                        }
-
-                        switch (c)
-                        {
-                            case 1:
-                                uploadService.ListAlbums();
-                                break;
-                            case 2:
-                                uploadService.ProcessAlbumDirectory(directorypath, addifalbumexists);
-                                break;
-                            case 3:
-                                uploadService.ProcessMainDirectory(directorypath, addifalbumexists);
-                                break;
-                            default:
-                                appexit = true;
-                                break;
-                        }
+                        c = GetManualUserChoice();
+                        appexit = false; //After the requested action has been performed ask the user again what to do next
                     }
-                    while (!appexit);
+
+                    switch (c)
+                    {
+                        case 1:
+                            uploadService.ListAlbums();
+                            break;
+                        case 2:
+                            uploadService.ProcessAlbumDirectory(directorypath, addifalbumexists);
+                            break;
+                        case 3:
+                            uploadService.ProcessMainDirectory(directorypath, addifalbumexists);
+                            break;
+                        default:
+                            appexit = true;
+                            break;
+                    }
                 }
+                while (!appexit);
 
             }
             catch (Exception ex)

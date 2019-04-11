@@ -204,45 +204,26 @@ namespace google_photos_upload.Services
                 MyAlbum album = new MyAlbum(logger, service, albumtitle, dirInfo);
 
 
-                //Does the album already exist?
+                //Verify the Album has not been cretaed outside this tool
+                if (!album.IsAlbumNew && !album.IsAlbumWritable)
+                {
+                    return (false, "Albums created outside this tool cannot be updated, for safety reasons.");
+                }
+
+                //Get User consent to update existing Album
                 if (!album.IsAlbumNew)
                 {
-                    if (!album.IsAlbumWritable)
+                    //Ask user if existing Album should be updated, if answer not provided through program args
+                    if (addifalbumexists == null)
                     {
-                        return (false, "Album not updated. For safety reasons then an album created outside this utility is not updated.");
+                        addifalbumexists = UserGrantedAlbumUpdate();
                     }
-                    else
+
+                    if (addifalbumexists != true)
                     {
-                        //Ask user if existing Album should be updated, if answer not provided through program args
-                        if (addifalbumexists == null)
-                        {
-                            Console.Write("The album already exists, do you want to add any missing images to it? (y/n) ");
-
-                            try
-                            {
-                                char key = Console.ReadKey().KeyChar;
-
-                                if (key != 'y')
-                                {
-                                    Console.WriteLine();
-                                    album.UploadStatus = UploadStatus.UploadAborted;
-                                    return (false, album.ToStringUploadResult());
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                logger.LogError(e, "An error occured when evaluating user input");
-                                Console.WriteLine();
-                                return (false, "An unexpected error occured, check the log");
-                            }
-
-                            Console.WriteLine();
-                        }
-                        else if (addifalbumexists == false)
-                        {
-                            logger.LogInformation("The album already exists and is not updated.");
-                            return (false, album.ToStringUploadResult());
-                        }
+                        album.UploadStatus = UploadStatus.UploadAborted;
+                        logger.LogInformation("The album already exists and is not updated.");
+                        return (false, album.ToStringUploadResult());
                     }
                 }
 
@@ -260,6 +241,28 @@ namespace google_photos_upload.Services
 
                 return (false, $"{path}: An exception occured during Album upload");
             }
+        }
+
+        private bool UserGrantedAlbumUpdate()
+        {
+            Console.Write("The album already exists, do you want to add any missing images to it? (y/n) ");
+
+            try
+            {
+                char key = Console.ReadKey().KeyChar;
+                Console.WriteLine();
+
+                if (key == 'y')
+                {
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "An error occured when evaluating user input");
+            }
+
+            return false;
         }
 
     }

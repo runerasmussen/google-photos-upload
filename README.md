@@ -14,8 +14,22 @@ Coded in .NET Core and leveraging the [Google Photos API](https://developers.goo
 
 # User Guide
 Ready to give it a try?<br />
-Please note that this is a hobby project and comes without any warranty, but seem to work fine!<br />
+Please note that this is a hobby project and comes without any warranty, but seem to work fine!
+
 For troubleshooting during execution look at the log file found in log/google-photos-upload.log
+
+
+**Permission to access your Google Photos account**
+
+The tool will ask for your permission to access your Google Photos account (see details below) and will share or use this access beyond your computer.
+The access token file '.credentials/google-photos-upload.json' can be removed from your computer anytime you want to revoke the permissions.
+
+Permission | Used for
+------------ | -------------
+View your Google Photos library | Identify if an Album already exists
+View the photos, videos and albums in your Google Photos | Identify available storage space in your Google Account
+Add to your Google Photos library | Create new Albums and upload Image/Movie files
+Manage photos added by this app | Append/update Albums that have been created by this tool
 
 ### User Guide for Windows 10 (no requirement for dotnet core installation)
 1. Download the latest release for your operating system [here](https://github.com/runerasmussen/google-photos-upload/releases/latest)
