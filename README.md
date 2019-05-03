@@ -43,7 +43,7 @@ and Click 'Recover Storage' (will downgrade ALL your media from Original down to
 5. Optional: Remove the permission to access your Google Photos Account (see [Permissions](#Permission-to-access-your-Google-Photos-account)).
 
 ### User Guide for Mac, Linux and Win10 (smaller, but dotnet core installation required)
-1. Install the [.NET Core runtime version 2.1 or later](https://www.microsoft.com/net/download)
+1. Install the [.NET Core runtime version 2.2 or later](https://www.microsoft.com/net/download)
 2. Download the latest **portable release** [here](https://github.com/runerasmussen/google-photos-upload/releases/latest)
 3. Execute the application:
    * On a shell / command prompt: dotnet google-photos-upload.dll
