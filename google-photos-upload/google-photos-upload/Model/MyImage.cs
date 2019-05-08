@@ -32,6 +32,7 @@ namespace google_photos_upload.Model
         /// </summary>
         private static readonly string[] allowedMovieFormats = { "mov", "avi" };
         private static readonly string[] allowedPhotoFormats = { "jpg", "jpeg", "gif" };
+        private static readonly string[] ignoreFiletypes = { "txt", "thm" };
 
 
 
@@ -41,8 +42,10 @@ namespace google_photos_upload.Model
             this.service = photoService;
             this.mediaFile = imgFile;
             this.UploadStatus = UploadStatus.NotStarted;
+            this.MediaType = GetMediaType();
         }
 
+        public MediaTypeEnum MediaType { get; private set; }
 
 
         public UploadStatus UploadStatus
@@ -78,13 +81,7 @@ namespace google_photos_upload.Model
         public bool IsPhoto
         {
             get {
-                string filename = mediaFile.Name.ToLower();
-                string fileext = Path.GetExtension(filename).ToLower();
-
-                if (allowedPhotoFormats.Any(fileext.Contains))
-                    return true;
-
-                return false;
+                return MediaType == MediaTypeEnum.Photo;
             }
         }
 
@@ -93,13 +90,7 @@ namespace google_photos_upload.Model
         {
             get
             {
-                string filename = mediaFile.Name.ToLower();
-                string fileext = Path.GetExtension(filename).ToLower();
-
-                if (allowedMovieFormats.Any(fileext.Contains))
-                    return true;
-
-                return false;
+                return MediaType == MediaTypeEnum.Movie;
             }
         }
 
@@ -131,6 +122,33 @@ namespace google_photos_upload.Model
                 //Unable to extract EXIF data from file
                 return null;
             }
+        }
+
+
+        /// <summary>
+        /// Get the media type for the file set on the mediaFile class variable.
+        /// </summary>
+        /// <returns>Media Type</returns>
+        private MediaTypeEnum GetMediaType()
+        {
+            string filename = mediaFile.Name.ToLower();
+            string fileext = Path.GetExtension(filename).ToLower();
+
+            //Is Movie?
+            if (ignoreFiletypes.Any(fileext.Contains))
+            {
+                return MediaTypeEnum.Ignore;
+            }
+            else if (allowedMovieFormats.Any(fileext.Contains))
+            {
+                return MediaTypeEnum.Movie;
+            }
+            else if (allowedPhotoFormats.Any(fileext.Contains))
+            {
+                return MediaTypeEnum.Photo;
+            }
+
+            return MediaTypeEnum.Unknown;
         }
 
 

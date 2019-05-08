@@ -97,7 +97,8 @@ namespace google_photos_upload.Model
             int movieUploadSuccess = myImages.Count(x => x.IsMovie && x.UploadStatus == UploadStatus.UploadSuccess);
             int photoCount = myImages.Count(x => x.IsPhoto);
             int movieCount = myImages.Count(x => x.IsMovie);
-            int failureCount = myImages.Count(x => x.UploadStatus == UploadStatus.UploadNotSuccessfull);
+            int failureCount = myImages.Count(x => x.MediaType != MediaTypeEnum.Ignore && x.UploadStatus == UploadStatus.UploadNotSuccessfull);
+            int ignoreCount = myImages.Count(x => x.MediaType == MediaTypeEnum.Ignore);
 
             if (UploadStatus == UploadStatus.UploadAborted)
                 return $"{albumTitle}: Upload aborted.";
@@ -105,7 +106,9 @@ namespace google_photos_upload.Model
             return $"{albumTitle}: " +
                 $"{photoUploadSuccess} of {photoCount} photos and " +
                 $"{movieUploadSuccess} of {movieCount} videos uploaded " +
-                $"({failureCount} failures. See log for details)";
+                $"({failureCount} failures. " +
+                $"{ignoreCount} not uploaded on purpose. " +
+                "See log for details)";
         }
 
         public static void ListAlbums(PhotosLibraryService service, ILogger logger)
@@ -237,10 +240,15 @@ namespace google_photos_upload.Model
                     MyImage myImage = new MyImage(_logger, service, imgFile);
                     myImages.Add(myImage);
 
-                    _logger.LogInformation($"Uploading {myImage.Name}");
-
-                    if (myImage.IsFormatSupported)
+                    if (myImage.MediaType == MediaTypeEnum.Ignore)
                     {
+                        myImage.UploadStatus = UploadStatus.UploadAborted;
+                        _logger.LogInformation($"NOT uploading '{myImage.Name}' as this file type is not relevant to upload");
+                    }
+                    else if (myImage.IsFormatSupported)
+                    {
+                        //Upload the media item to Google Photos
+                        _logger.LogInformation($"Uploading {myImage.Name}");
                         bool imguploadresult = myImage.UploadMedia();
 
                         if (!imguploadresult)
@@ -361,7 +369,7 @@ namespace google_photos_upload.Model
             }
 
 
-            if (myImages.Count != imagesAddedToAlbum)
+            if (myImages.Count(x => x.MediaType != MediaTypeEnum.Ignore) != imagesAddedToAlbum)
             {
                 _logger.LogError($"Images not added fully to Album. Expected {myImages.Count}, only {imagesAddedToAlbum} added.");
                 return false;
