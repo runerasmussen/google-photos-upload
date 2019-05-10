@@ -4,7 +4,7 @@ using System.Text;
 
 namespace google_photos_upload.Model
 {
-    enum MediaTypeEnum
+    enum MediaType
     {
         /// <summary>
         /// The file type is not known and the user should be alerted.

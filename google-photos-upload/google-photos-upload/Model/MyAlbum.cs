@@ -97,8 +97,8 @@ namespace google_photos_upload.Model
             int movieUploadSuccess = myImages.Count(x => x.IsMovie && x.UploadStatus == UploadStatus.UploadSuccess);
             int photoCount = myImages.Count(x => x.IsPhoto);
             int movieCount = myImages.Count(x => x.IsMovie);
-            int failureCount = myImages.Count(x => x.MediaType != MediaTypeEnum.Ignore && x.UploadStatus == UploadStatus.UploadNotSuccessfull);
-            int ignoreCount = myImages.Count(x => x.MediaType == MediaTypeEnum.Ignore);
+            int failureCount = myImages.Count(x => x.ImageMediaType != MediaType.Ignore && x.UploadStatus == UploadStatus.UploadNotSuccessfull);
+            int ignoreCount = myImages.Count(x => x.ImageMediaType == MediaType.Ignore);
 
             if (UploadStatus == UploadStatus.UploadAborted)
                 return $"{albumTitle}: Upload aborted.";
@@ -240,7 +240,7 @@ namespace google_photos_upload.Model
                     MyImage myImage = new MyImage(_logger, service, imgFile);
                     myImages.Add(myImage);
 
-                    if (myImage.MediaType == MediaTypeEnum.Ignore)
+                    if (myImage.ImageMediaType == MediaType.Ignore)
                     {
                         myImage.UploadStatus = UploadStatus.UploadAborted;
                         _logger.LogInformation($"NOT uploading '{myImage.Name}' as this file type is not relevant to upload");
@@ -369,7 +369,7 @@ namespace google_photos_upload.Model
             }
 
 
-            if (myImages.Count(x => x.MediaType != MediaTypeEnum.Ignore) != imagesAddedToAlbum)
+            if (myImages.Count(x => x.ImageMediaType != MediaType.Ignore) != imagesAddedToAlbum)
             {
                 _logger.LogError($"Images not added fully to Album. Expected {myImages.Count}, only {imagesAddedToAlbum} added.");
                 return false;

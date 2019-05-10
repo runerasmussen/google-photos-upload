@@ -42,10 +42,10 @@ namespace google_photos_upload.Model
             this.service = photoService;
             this.mediaFile = imgFile;
             this.UploadStatus = UploadStatus.NotStarted;
-            this.MediaType = GetMediaType();
+            this.ImageMediaType = GetMediaType();
         }
 
-        public MediaTypeEnum MediaType { get; private set; }
+        public MediaType ImageMediaType { get; private set; }
 
 
         public UploadStatus UploadStatus
@@ -81,7 +81,7 @@ namespace google_photos_upload.Model
         public bool IsPhoto
         {
             get {
-                return MediaType == MediaTypeEnum.Photo;
+                return ImageMediaType == MediaType.Photo;
             }
         }
 
@@ -90,7 +90,7 @@ namespace google_photos_upload.Model
         {
             get
             {
-                return MediaType == MediaTypeEnum.Movie;
+                return ImageMediaType == MediaType.Movie;
             }
         }
 
@@ -129,7 +129,7 @@ namespace google_photos_upload.Model
         /// Get the media type for the file set on the mediaFile class variable.
         /// </summary>
         /// <returns>Media Type</returns>
-        private MediaTypeEnum GetMediaType()
+        private MediaType GetMediaType()
         {
             string filename = mediaFile.Name.ToLower();
             string fileext = Path.GetExtension(filename).ToLower();
@@ -137,18 +137,18 @@ namespace google_photos_upload.Model
             //Is Movie?
             if (ignoreFiletypes.Any(fileext.Contains))
             {
-                return MediaTypeEnum.Ignore;
+                return MediaType.Ignore;
             }
             else if (allowedMovieFormats.Any(fileext.Contains))
             {
-                return MediaTypeEnum.Movie;
+                return MediaType.Movie;
             }
             else if (allowedPhotoFormats.Any(fileext.Contains))
             {
-                return MediaTypeEnum.Photo;
+                return MediaType.Photo;
             }
 
-            return MediaTypeEnum.Unknown;
+            return MediaType.Unknown;
         }
 
 
