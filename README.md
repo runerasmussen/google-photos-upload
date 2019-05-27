@@ -1,15 +1,21 @@
-![Build status](https://runerasmussen.visualstudio.com/google-photos-upload/_apis/build/status/google-photos-upload-CI-Github)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=runerasmussen_google-photos-upload&metric=alert_status)](https://sonarcloud.io/dashboard?id=runerasmussen_google-photos-upload)
+![Continuous Integration Build of Master branch](https://runerasmussen.visualstudio.com/google-photos-upload/_apis/build/status/CI%20Master%20Build)
+[![SonarQube Static Code Analysis for quality and security](https://sonarcloud.io/api/project_badges/measure?project=runerasmussen_google-photos-upload&metric=alert_status)](https://sonarcloud.io/dashboard?id=runerasmussen_google-photos-upload)
 
-# Introduction
-Desktop tool to upload a local image directory into an Album in Google Photos. Works cross platform on mac/pc/linux.
+![Works on all desktop operating systems](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey.svg)
+![Coded in .NET Core](https://img.shields.io/badge/.NET%20Core-2.2-lightgrey.svg)
+![MIT License - free to use, without warranty!](https://img.shields.io/badge/license-MIT-green.svg)
+
+
+
+Desktop tool to upload a local image directory into an Album in Google Photos, on mac/pc/linux.
 
 Features:
 * List current Albums in Google Photos
 * Upload a directory into Google Photos as an Album
-* Upload subdirectories from a main directory into Google Photos as Albums
+* Upload all subdirectories from a main directory into Google Photos as Albums
 
-Coded in .NET Core and leveraging the Google Photos API.
+
+
 
 
 # User Guide
@@ -56,7 +62,7 @@ and Click 'Recover Storage' (will downgrade ALL your photos from Original down t
 
 
 ## Obtaining a Google Photos API key
-This is optional. There is a key provided in the source code which has constraints, but sufficient for testing.
+Optional step! There is a key provided in the source code which has constraints, but sufficient for testing.
 1. Obtain a Google Photos API key (Client ID and Client Secret) by following the instructions on [Getting started with Google Photos REST APIs](https://developers.google.com/photos/library/guides/get-started)
 
 **NOTE** When selecting your application type in Step 4 of "Request an OAuth 2.0 client ID", please select "Other". There's also no need to carry out step 5 in that section.
