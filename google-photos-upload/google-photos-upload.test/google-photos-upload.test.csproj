@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <Folder Include="TestData\Empty Folder\" />
+    <Folder Include="TestData\Exif\" />
     <Folder Include="TestData\Summer in US\" />
     <Folder Include="TestData\Trip to Paris\" />
   </ItemGroup>

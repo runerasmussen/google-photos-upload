@@ -7,9 +7,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using ExifLibrary;
 using google_photos_upload.Extensions;
 using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.MetaData.Profiles.Exif;
 
 namespace google_photos_upload.Model
 {
@@ -20,6 +22,7 @@ namespace google_photos_upload.Model
         private readonly PhotosLibraryService service = null;
 
         private readonly FileInfo mediaFile = null;
+        private readonly IImageInfo imageInfo = null;
         private string uploadToken = null;
 
         //Get from config file if we should upload img without EXIF
@@ -43,6 +46,15 @@ namespace google_photos_upload.Model
             this.mediaFile = imgFile;
             this.UploadStatus = UploadStatus.NotStarted;
             this.ImageMediaType = GetMediaType();
+
+            if (IsPhoto)
+            {
+                using (var fileStream = mediaFile.OpenRead())
+                {
+                    imageInfo = Image.Identify(fileStream);
+                }
+            }
+
         }
 
         public MediaType ImageMediaType { get; private set; }
@@ -52,6 +64,11 @@ namespace google_photos_upload.Model
         {
             get;
             set;
+        }
+
+        private string NameNoFileExtension
+        {
+            get { return Path.GetFileNameWithoutExtension(Name); }
         }
 
         /// <summary>
@@ -68,6 +85,30 @@ namespace google_photos_upload.Model
         private string NameASCII
         {
             get { return Name.UnicodeToASCII(); }
+        }
+
+        public string Description
+        {
+            get
+            {
+                if (imageInfo != null)
+                {
+                    try
+                    {
+                        ExifValue exifValue = imageInfo.MetaData.ExifProfile.GetValue(SixLabors.ImageSharp.MetaData.Profiles.Exif.ExifTag.ImageDescription);
+
+                        if (exifValue != null)
+                            return exifValue.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        //Failed to read Description from EXIF data
+                    }
+                }
+
+                //Use filename without extension, if EXIF tag is not there or for other file types like Movies
+                return NameNoFileExtension;
+            }
         }
 
         /// <summary>
@@ -98,21 +139,20 @@ namespace google_photos_upload.Model
         /// <summary>
         /// Gets the 'Date Taken Original' value in DateTime format, derived from image EXIF data (avoids loading the whole image file into memory).
         /// </summary>
-        private DateTime? DateImageWasTaken
+        private bool HasDateImageWasTaken
         {
             get
             {
                 try
                 {
-                    ImageFile imageFile = ImageFile.FromFile(mediaFile.FullName);
-                    var datetimeOriginal = imageFile.Properties.FirstOrDefault<ExifProperty>(x => x.Tag == ExifTag.DateTimeOriginal).Value;
-                    string datetimeOriginaltxt = datetimeOriginal.ToString();
+                    ExifValue exifValue = imageInfo.MetaData.ExifProfile.GetValue(SixLabors.ImageSharp.MetaData.Profiles.Exif.ExifTag.DateTimeOriginal);
 
-                    if (DateTime.TryParse(datetimeOriginaltxt, out DateTime dtOriginal))
-                        return dtOriginal;
+                    string datetimeOriginaltxt = exifValue.Value.ToString();
 
-                    //Unable to get date
-                    return null;
+                    if (string.IsNullOrEmpty(datetimeOriginaltxt))
+                        return false;
+
+                    return true;
                 }
                 catch (Exception)
                 {
@@ -120,7 +160,7 @@ namespace google_photos_upload.Model
                 }
 
                 //Unable to extract EXIF data from file
-                return null;
+                return false;
             }
         }
 
@@ -160,9 +200,7 @@ namespace google_photos_upload.Model
                     if (IsPhoto)
                     {
                         // EXIF property "Date Taken Original" must be set on the image file to ensure correct date in Google Photos
-                        var datetimeOriginal = DateImageWasTaken;
-
-                        if (datetimeOriginal == null)
+                        if (!HasDateImageWasTaken)
                         {
                             if (!conf_IMG_UPLOAD_NO_EXIF)
                                 return false;

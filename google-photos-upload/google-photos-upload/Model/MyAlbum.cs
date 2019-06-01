@@ -387,7 +387,7 @@ namespace google_photos_upload.Model
                 _logger.LogDebug($"Adding '{myImage.Name}' to album");
 
                 NewMediaItem image = new NewMediaItem();
-                image.Description = Path.GetFileNameWithoutExtension(myImage.Name);
+                image.Description = myImage.Description;
                 image.SimpleMediaItem = new SimpleMediaItem()
                 {
                     UploadToken = myImage.UploadToken
