@@ -7,7 +7,7 @@
 
 
 
-Desktop tool to upload a local image directory into an Album in Google Photos, on mac/pc/linux.
+Desktop tool to upload a local image directory into an Album in Google Photos, on pc/mac/linux.
 
 Features:
 * List current Albums in Google Photos
@@ -73,7 +73,7 @@ Optional step! There is a key provided in the source code which has constraints,
 
 # API references
 * [Google Photos API v1](https://www.nuget.org/packages/Google.Apis.PhotosLibrary.v1/) / [Google Photos API homepage](https://developers.google.com/photos/) enables the API integration for Google Photos.
-* [ExifLibrary](https://github.com/devedse/exiflibrary) reads Image Exif properties to ensure Image date is correct before upload.
+* [Six Labors ImageSharp](https://github.com/SixLabors/ImageSharp) reads Image Exif properties.
 * [.NET Core](https://dot.net) as runtime engine.
 * [NLog](https://nlog-project.org/) for logging.
 * [Mono.Options](https://github.com/xamarin/XamarinComponents/tree/master/XPlat/Mono.Options) by the Xamarin team processes commandline arguments.
