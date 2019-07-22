@@ -35,3 +35,7 @@ have a suggestion that can improve this small utility.
 
 # License
 Licensed under the [MIT license](LICENSE.md). No warranty!
+
+
+[![analytics](https://www.google-analytics.com/collect?v=1&t=pageview&tid=UA-3234978-2&cid=4baccbc6-a605-4558-9dd4-ccb8899aa950&dp=%2FREADME.md&dh=github.com
+)]()

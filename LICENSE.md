@@ -1,6 +1,6 @@
-MIT License
+####MIT License
 
-Copyright (c) 2018 Rune Rasmussen
+Copyright (c) 2019 Rune Rasmussen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,3 +40,7 @@ Copyright 2018 Six Labors
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+
+[![analytics](https://www.google-analytics.com/collect?v=1&t=pageview&tid=UA-3234978-2&cid=4baccbc6-a605-4558-9dd4-ccb8899aa950&dp=%2FLICENSE.md&dh=github.com
+)]()

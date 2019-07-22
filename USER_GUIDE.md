@@ -79,3 +79,7 @@ There is a key provided in the source code which has constraints, but sufficient
 
 2. Replace `YOUR_CLIENT_ID` in the client_id.json file with the provided Client ID. 
 3. Replace `YOUR_CLIENT_SECRET` in the client_id.json file wiht the provided Client Secret.
+
+
+[![analytics](https://www.google-analytics.com/collect?v=1&t=pageview&tid=UA-3234978-2&cid=4baccbc6-a605-4558-9dd4-ccb8899aa950&dp=%2FUSER_GUIDE.md&dh=github.com
+)]()
