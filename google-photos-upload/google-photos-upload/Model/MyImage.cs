@@ -264,7 +264,7 @@ namespace google_photos_upload.Model
         /// https://stackoverflow.com/questions/51576778/upload-photos-to-google-photos-api-error-500
         /// </summary>
         /// <param name="photo"></param>
-        /// <returns></returns>
+        /// <returns>UploadToken from Google Photos. Null is returned if upload was not succesful.</returns>
         private string UploadMediaFile(PhotosLibraryService photoService)
         {
             string newUploadToken = null;
@@ -279,16 +279,33 @@ namespace google_photos_upload.Model
                     //Read image into the pixels byte array
                     fileStream.Read(pixels, 0, (int)fileStream.Length);
 
+                    //Set http headers per Google Photos API requirement
+                    //https://developers.google.com/photos/library/guides/upload-media
                     var httpContent = new ByteArrayContent(pixels);
                     httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                     httpContent.Headers.Add("X-Goog-Upload-File-Name", NameASCII);
                     httpContent.Headers.Add("X-Goog-Upload-Protocol", "raw");
 
+                    //Object to store response
+                    HttpResponseMessage mediaResponse = null;
 
-                    HttpResponseMessage mediaResponse = photoService.HttpClient.PostAsync(PhotosLibraryPasebath, httpContent).Result;
+                    try
+                    {
+                        //Send HTTP Post request
+                        mediaResponse = photoService.HttpClient.PostAsync(PhotosLibraryPasebath, httpContent).Result;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Exception occured during file posting. Inner Exception: {0}", ex.InnerException.ToString());
+                    }
 
-                    if (mediaResponse.IsSuccessStatusCode)
+
+                    if (mediaResponse is null)
+                        _logger.LogDebug("mediaResponse is null");
+                    else if (mediaResponse.IsSuccessStatusCode)
                         newUploadToken = mediaResponse.Content.ReadAsStringAsync().Result;
+                    else
+                        _logger.LogWarning("Upload Media Response. Status Code: {0}. Reason Phrase: {1}", mediaResponse.StatusCode, mediaResponse.ReasonPhrase);
                 }
 
             }
@@ -298,8 +315,7 @@ namespace google_photos_upload.Model
                 throw;
             }
 
-            photoService.HttpClient.DefaultRequestHeaders.Clear();
-
+            //Returning the new UploadToken, or if none will return null.
             return newUploadToken;
         }
 
