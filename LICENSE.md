@@ -1,6 +1,6 @@
 ####MIT License
 
-Copyright (c) 2019 Rune Rasmussen
+Copyright (c) 2019 Rune Rasmussen (www.runerasmussen.dk)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,12 @@ SOFTWARE.
 
 
 <br /><br />
+<hr />
+<br /><br />
 
-#### License for Six Labors ImageSharp library
+#### Third Party Licenses
+
+##### License for Six Labors ImageSharp library
 
 Sourced from https://github.com/SixLabors/ImageSharp
 

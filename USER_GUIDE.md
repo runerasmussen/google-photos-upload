@@ -16,7 +16,7 @@ If you run into an issue then take a look at the log file found in log/google-ph
 
 ## Mac, Linux and Win10 User Guide
 *Small, but dotnet core installation required.*
-1. Install [.NET Core runtime version 2.2 or later](https://www.microsoft.com/net/download)
+1. Install [.NET Core runtime version 3.0 or later](https://www.microsoft.com/net/download)
 2. Download the latest **portable release** [here](https://github.com/runerasmussen/google-photos-upload/releases/latest)
 3. Execute the application in a shell / command prompt: dotnet google-photos-upload.dll 
    (or use [commandline parameters](#Commandline-Parameters))

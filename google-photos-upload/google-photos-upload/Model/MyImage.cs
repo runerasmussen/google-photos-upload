@@ -100,9 +100,10 @@ namespace google_photos_upload.Model
                         if (exifValue != null)
                             return exifValue.ToString();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         //Failed to read Description from EXIF data
+                        _logger.LogWarning("Failed reading Description EXIF data...");
                     }
                 }
 
@@ -156,7 +157,7 @@ namespace google_photos_upload.Model
                 }
                 catch (Exception)
                 {
-                    _logger.LogWarning("Failed reading EXIF data...");
+                    _logger.LogWarning("Failed reading Image Date EXIF data...");
                 }
 
                 //Unable to extract EXIF data from file
