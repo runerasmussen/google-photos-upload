@@ -1,12 +1,10 @@
 # Google Photos Upload
 
-![Continuous Integration Build of Master branch](https://runerasmussen.visualstudio.com/google-photos-upload/_apis/build/status/CI%20Master%20Build)
-[![SonarQube Static Code Analysis for quality and security](https://sonarcloud.io/api/project_badges/measure?project=runerasmussen_google-photos-upload&metric=alert_status)](https://sonarcloud.io/dashboard?id=runerasmussen_google-photos-upload)
 ![Works on all desktop operating systems](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey.svg)
-![Coded in .NET Core](https://img.shields.io/badge/.NET%20Core-3.0-lightgrey.svg)
+![Coded in .NET Core](https://img.shields.io/badge/.NET%20Core-3.1-lightgrey.svg)
 ![MIT License - free to use, without warranty!](https://img.shields.io/badge/license-MIT-green.svg)
 
-Desktop tool to upload a local image directory into an Album in Google Photos, on pc/mac/linux.
+Desktop and command line tool to upload a local image directory into an Album in Google Photos, on pc/mac/linux.
 
 Features:
 * List current Albums in Google Photos

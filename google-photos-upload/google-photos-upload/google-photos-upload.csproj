@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>google_photos_upload</RootNamespace>
     <StartupObject>google_photos_upload.Program</StartupObject>
     <Authors>Rune Rasmussen</Authors>
