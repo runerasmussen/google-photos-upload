@@ -137,9 +137,15 @@ namespace google_photos_upload.Services
             var foldersize = directoryInfo.GetDirectorySize();
             var googleDriveSpaceAvailable = GetGoogleDriveSpaceAvailable();
 
-            if ((googleDriveSpaceAvailable - bufferspace) < foldersize)
+            var foldersizeMb = foldersize / 1024.0F / 1024.0F;
+            logger.LogDebug($"Folder size is {foldersizeMb} Mb.");
+
+            if (googleDriveSpaceAvailable is null)
             {
-                var foldersizeMb = foldersize / 1024.0F / 1024.0F;
+                logger.LogDebug($"Your Google Account has unlimited disk space.");
+            }
+            else if ((googleDriveSpaceAvailable - bufferspace) < foldersize)
+            {
                 var googleDriveSpaceAvailableMb = googleDriveSpaceAvailable / 1024.0F / 1024.0F;
 
                 logger.LogWarning("There is not sufficient space available in your Google Account to upload this folder.");
@@ -152,9 +158,9 @@ namespace google_photos_upload.Services
         }
 
 
-        private long GetGoogleDriveSpaceAvailable()
+        private long? GetGoogleDriveSpaceAvailable()
         {
-            long storageAvailable = -1;
+            long? storageAvailable = null;
 
             AboutResource.GetRequest getRequest = driveService.About.Get();
             getRequest.Fields = "*";
