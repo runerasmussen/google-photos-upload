@@ -11,7 +11,7 @@ using google_photos_upload.Extensions;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.MetaData.Profiles.Exif;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace google_photos_upload.Model
 {
@@ -95,7 +95,7 @@ namespace google_photos_upload.Model
                 {
                     try
                     {
-                        ExifValue exifValue = imageInfo.MetaData.ExifProfile.GetValue(SixLabors.ImageSharp.MetaData.Profiles.Exif.ExifTag.ImageDescription);
+                        IExifValue exifValue = imageInfo.Metadata.ExifProfile.GetValue(SixLabors.ImageSharp.Metadata.Profiles.Exif.ExifTag.ImageDescription);
 
                         if (exifValue != null)
                             return exifValue.ToString();
@@ -146,9 +146,9 @@ namespace google_photos_upload.Model
             {
                 try
                 {
-                    ExifValue exifValue = imageInfo.MetaData.ExifProfile.GetValue(SixLabors.ImageSharp.MetaData.Profiles.Exif.ExifTag.DateTimeOriginal);
+                    IExifValue exifValue = imageInfo.Metadata.ExifProfile.GetValue(SixLabors.ImageSharp.Metadata.Profiles.Exif.ExifTag.DateTimeOriginal);
 
-                    string datetimeOriginaltxt = exifValue.Value.ToString();
+                    string datetimeOriginaltxt = exifValue.GetValue().ToString();
 
                     if (string.IsNullOrEmpty(datetimeOriginaltxt))
                         return false;
