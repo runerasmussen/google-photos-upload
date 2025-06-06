@@ -22,7 +22,7 @@ namespace google_photos_upload.Model
         private readonly PhotosLibraryService service = null;
 
         private readonly FileInfo mediaFile = null;
-        private readonly IImageInfo imageInfo = null;
+        private readonly ImageInfo imageInfo = null;
         private string uploadToken = null;
 
         //Get from config file if we should upload img without EXIF
@@ -95,9 +95,9 @@ namespace google_photos_upload.Model
                 {
                     try
                     {
-                        IExifValue exifValue = imageInfo.Metadata.ExifProfile.GetValue(SixLabors.ImageSharp.Metadata.Profiles.Exif.ExifTag.ImageDescription);
-
-                        if (exifValue != null)
+                        IExifValue<string> exifValue = null;
+                        
+                        if (imageInfo.Metadata.ExifProfile != null && imageInfo.Metadata.ExifProfile.TryGetValue(ExifTag.ImageDescription, out exifValue))
                             return exifValue.ToString();
                     }
                     catch (Exception)
@@ -145,15 +145,20 @@ namespace google_photos_upload.Model
             get
             {
                 try
-                {
-                    IExifValue exifValue = imageInfo.Metadata.ExifProfile.GetValue(SixLabors.ImageSharp.Metadata.Profiles.Exif.ExifTag.DateTimeOriginal);
-
-                    string datetimeOriginaltxt = exifValue.GetValue().ToString();
-
-                    if (string.IsNullOrEmpty(datetimeOriginaltxt))
+                {                        
+                    IExifValue<string> exifValue = null;
+                        
+                    if (imageInfo.Metadata.ExifProfile != null && imageInfo.Metadata.ExifProfile.TryGetValue(ExifTag.DateTimeOriginal, out exifValue))
+                    { 
+                        if (string.IsNullOrEmpty(exifValue.Value))
+                            return false;
+                            
+                        return true;
+                    }
+                    else
+                    {
                         return false;
-
-                    return true;
+                    }
                 }
                 catch (Exception)
                 {
