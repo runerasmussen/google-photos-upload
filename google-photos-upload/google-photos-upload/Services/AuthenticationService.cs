@@ -16,10 +16,11 @@ namespace google_photos_upload.Services
     {
         // If modifying these scopes, delete your previously saved credentials
         // at ~/.credentials/rr-google-photos-upload.json
-        static readonly string[] Scopes = {
-            PhotosLibraryService.Scope.PhotoslibraryAppendonly,
-            //PhotosLibraryService.Scope.PhotoslibraryReadonlyAppcreateddata, //The app need to identify if an album already exists.
-            PhotosLibraryService.Scope.PhotoslibraryReadonly,
+        private static readonly string[] Scopes = {
+            PhotosLibraryService.Scope.PhotoslibraryReadonly,  // For read operations
+            PhotosLibraryService.Scope.PhotoslibraryAppendonly, // For adding to albums
+            PhotosLibraryService.Scope.PhotoslibraryReadonlyAppcreateddata, // For reading app-created data
+            PhotosLibraryService.Scope.PhotoslibraryAppendonly, // For uploading media
             DriveService.Scope.DrivePhotosReadonly,
         };
         private const string ApplicationName = "RR Google Photos Upload";
