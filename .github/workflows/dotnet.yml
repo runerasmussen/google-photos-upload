@@ -7,7 +7,7 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ fix/dotnet9" ]
+    branches: [ "fix/dotnet9" ]
 
 jobs:
   build:
