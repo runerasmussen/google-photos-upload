@@ -3,26 +3,13 @@ Read about the Google Photos Upload project [here](README.md).
 
 Ready to give it a try? Please note that this is a hobby project and comes without any warranty, but seem to work just fine!
 
-If you run into an issue then take a look at the log file found in log/google-photos-upload.log
+If you run into an issue then take a look at the log file found locally on your computer in log/google-photos-upload.log
 
 
-## Windows 10 Standalone User Guide
-*No requirement for dotnet core installation.*
-1. Download the latest **Win10** compatible release [here](https://github.com/runerasmussen/google-photos-upload/releases/latest)
-2. Run google-photos-upload.exe (or use [commandline parameters](#Commandline-Parameters))
+## Step by Step
+1. Download the latest release for Windows, Mac or Linux [here](https://github.com/runerasmussen/google-photos-upload/releases/latest).
+2. Run google-photos-upload.exe (or run in a terminal using [commandline parameters](#Commandline-Parameters)). It will ask for [permission](#Permission-to-access-your-Google-Photos-account) on the first run.
 3. Follow the instructions in the application to upload images/videos.
-   It will ask for [permission](#Permission-to-access-your-Google-Photos-account) on first run.
-4. Recommended: Remove the permission to access your Google Photos Account (see [Permissions](#Permission-to-access-your-Google-Photos-account)).
-
-## Mac, Linux and Win10 User Guide
-*Small, but dotnet core installation required.*
-1. Install [.NET Core runtime version 3.0 or later](https://www.microsoft.com/net/download)
-2. Download the latest **portable release** [here](https://github.com/runerasmussen/google-photos-upload/releases/latest)
-3. Execute the application in a shell / command prompt: dotnet google-photos-upload.dll 
-   (or use [commandline parameters](#Commandline-Parameters))
-4. Follow the instructions in the application to upload images/videos.
-   It will ask for [permission](#Permission-to-access-your-Google-Photos-account) on first run.
-5. Recommended: Remove the permission to access your Google Photos Account (see [Permissions](#Permission-to-access-your-Google-Photos-account)).
 
 
 ## Things to note
