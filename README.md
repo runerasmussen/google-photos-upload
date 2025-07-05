@@ -4,7 +4,7 @@
 ![Works on all desktop operating systems](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-blue.svg)
 ![Coded in .NET 9](https://img.shields.io/badge/.NET%209-lightgrey.svg)
 
-Desktop tool to upload a local image directory into an Album in Google Photos, on a pc/mac/linux.
+Desktop and command line tool to upload a local image directory into an Album in Google Photos, on pc/mac/linux.
 
 Features:
 * List current Albums in Google Photos
