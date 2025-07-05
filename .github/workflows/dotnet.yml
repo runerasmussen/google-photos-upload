@@ -7,7 +7,8 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "fix/dotnet9" ]
+    branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,17 +16,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-      working-directory: google-photos-upload/google-photos-upload
-    - name: Build
-      run: dotnet build --no-restore
-      working-directory: google-photos-upload/google-photos-upload
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-      working-directory: google-photos-upload/google-photos-upload
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: google-photos-upload/google-photos-upload
+      - name: Build
+        run: dotnet build --no-restore
+        working-directory: google-photos-upload/google-photos-upload
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+        working-directory: google-photos-upload/google-photos-upload
+      
+      # Publish self-contained for Windows
+      - name: Publish Windows (Self-Contained)
+        run: dotnet publish --no-build --configuration Release --runtime win-x64 --self-contained true --output ./publish/win-x64
+        working-directory: google-photos-upload/google-photos-upload
+      
+      # Publish self-contained for macOS
+      - name: Publish macOS (Self-Contained)
+        run: dotnet publish --no-build --configuration Release --runtime osx-x64 --self-contained true --output ./publish/osx-x64
+        working-directory: google-photos-upload/google-photos-upload
+      
+      # Publish self-contained for Linux
+      - name: Publish Linux (Self-Contained)
+        run: dotnet publish --no-build --configuration Release --runtime linux-x64 --self-contained true --output ./publish/linux-x64
+        working-directory: google-photos-upload/google-photos-upload
+
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-photos-upload-windows
+          path: google-photos-upload/google-photos-upload/publish/win-x64/
+          retention-days: 30
+
+      - name: Upload macOS executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-photos-upload-macos
+          path: google-photos-upload/google-photos-upload/publish/osx-x64/
+          retention-days: 30
+
+      - name: Upload Linux executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-photos-upload-linux
+          path: google-photos-upload/google-photos-upload/publish/linux-x64/
+          retention-days: 30
