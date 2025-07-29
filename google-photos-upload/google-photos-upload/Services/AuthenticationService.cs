@@ -18,7 +18,6 @@ namespace google_photos_upload.Services
         // at ~/.credentials/rr-google-photos-upload.json
         private static readonly string[] Scopes = {
             PhotosLibraryService.Scope.PhotoslibraryReadonly,  // For read operations
-            PhotosLibraryService.Scope.PhotoslibraryAppendonly, // For adding to albums
             PhotosLibraryService.Scope.PhotoslibraryReadonlyAppcreateddata, // For reading app-created data
             PhotosLibraryService.Scope.PhotoslibraryAppendonly, // For uploading media
             DriveService.Scope.DrivePhotosReadonly,
