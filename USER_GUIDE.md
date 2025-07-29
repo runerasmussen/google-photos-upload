@@ -15,15 +15,15 @@ If you run into an issue then take a look at the log file found locally on your 
 ## Step by Step - Mac/Linux
 *dotnet runtime installation required.*
 1. Install [.NET](https://www.microsoft.com/net/download)
-2. Download the latest cross-platform rleease [here](https://github.com/runerasmussen/google-photos-upload/releases/latest).
+2. Download the latest cross-platform release [here](https://github.com/runerasmussen/google-photos-upload/releases/latest).
 3. Open a terminal and run this command: dotnet google-photos-upload.dll 
    (or run in a terminal using [commandline parameters](#Commandline-Parameters)). It will ask for [permission](docs/google-photos-permissions.md) on the first run.
 4. Follow the instructions in the application to upload images/videos.
 
 
 ## Things to note
- * Configuration option exists to prevent image upload if EXIF data is missing.
-    In App.config set value to true (default value) to allow upload: `<add key="IMG_UPLOAD_NO_EXIF" value="true"/>`
+ * Configuration options in the file `google-photos-upload.dll.config`:
+   * `<add key="IMG_UPLOAD_NO_EXIF" value="true"/>`: Set this value to `true` to prevent image upload if EXIF data is missing.
 
  * The Google Photos Media title will be derived from the first available of these:
    1. EXIF ImageDescription
@@ -39,8 +39,8 @@ If you run into an issue then take a look at the log file found locally on your 
 
 
 ## Commandline Parameters
- * Win10: in a command prompt execute "dotnet google-photos-upload.exe -h"
- * Mac/Linux: in a shell execute "dotnet google-photos-upload.dll -h"
+ * Windows: in a terminal execute "dotnet google-photos-upload.exe -h"
+ * Mac/Linux: in a terminal execute "dotnet google-photos-upload.dll -h"
 
 Available parameters:
 
