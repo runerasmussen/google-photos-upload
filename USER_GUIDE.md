@@ -6,18 +6,27 @@ Ready to give it a try? Please note that this is a hobby project and comes witho
 If you run into an issue then take a look at the log file found locally on your computer in log/google-photos-upload.log
 
 
-## Step by Step
-1. Download the latest release for Windows, Mac or Linux [here](https://github.com/runerasmussen/google-photos-upload/releases/latest).
-2. Run google-photos-upload.exe (or run in a terminal using [commandline parameters](#Commandline-Parameters)). It will ask for [permission](#Permission-to-access-your-Google-Photos-account) on the first run.
+## Step by Step - Windows
+1. Download the latest release for Windows [here](https://github.com/runerasmussen/google-photos-upload/releases/latest).
+2. Run google-photos-upload.exe (or run in a terminal using [commandline parameters](#Commandline-Parameters)). It will ask for [permission](docs/google-photos-permissions.md) on the first run.
 3. Follow the instructions in the application to upload images/videos.
+
+
+## Step by Step - Mac/Linux
+*dotnet runtime installation required.*
+1. Install [.NET](https://www.microsoft.com/net/download)
+2. Download the latest cross-platform rleease [here](https://github.com/runerasmussen/google-photos-upload/releases/latest).
+3. Open a terminal and run this command: dotnet google-photos-upload.dll 
+   (or run in a terminal using [commandline parameters](#Commandline-Parameters)). It will ask for [permission](docs/google-photos-permissions.md) on the first run.
+4. Follow the instructions in the application to upload images/videos.
 
 
 ## Things to note
  * Configuration option exists to prevent image upload if EXIF data is missing.
     In App.config set value to true (default value) to allow upload: `<add key="IMG_UPLOAD_NO_EXIF" value="true"/>`
 
- * The Google Photos Media title/description will be taken from the first available of these:
-   1.  EXIF ImageDescription
+ * The Google Photos Media title will be derived from the first available of these:
+   1. EXIF ImageDescription
    2. Filename without file extension
 
  * Supported file types: mov, avi, jpg, jpeg, gif
@@ -26,21 +35,7 @@ If you run into an issue then take a look at the log file found locally on your 
 
  * Media will be uploaded in uncompressed 'Original Quality'. The Google Photos API does not support uploading in 'High Quality'. 
    To recover storage; Open [Google Photos Settings website](https://photos.google.com/settings) and 
-   Click 'Recover Storage' (will downgrade ALL your photos from Original down to High Quality).
-
-
-## Permission to access your Google Photos account
-The tool will ask for your permission to access your Google Photos account (see table below) and will **not** share or use this access beyond your computer.
-
-Permission | Used for
------------- | -------------
-View your Google Photos library | Identify if an Album already exists
-View the photos, videos and albums in your Google Photos | Identify available storage space in your Google Account
-Add to your Google Photos library | Create new Albums and upload Image/Movie files
-
-To revoke the permissions you should:
-1. Remove the token file '.credentials/google-photos-upload.json'.
-2. Remove the tool from your list of [Apps with access to your Google account](https://myaccount.google.com/permissions)
+   Click 'Recover Storage' (will downgrade **ALL** your photos in Google Photos from Original down to High Quality).
 
 
 ## Commandline Parameters
