@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -31,19 +31,19 @@ jobs:
     
     # Publish Windows app
     - name: Publish Windows App
-      run: dotnet publish --configuration Release --runtime win-x64 --self-contained true --output ./publish/win /p:PublishSingleFile=true
+      run: dotnet publish --configuration Release /p:PublishProfile=Publish-win-x64.pubxml --output ./publish/windows/
       working-directory: google-photos-upload/google-photos-upload
     
     # Publish cross-platform app
     - name: Publish cross-platform App
-      run: dotnet publish --configuration Release --runtime osx-x64 --self-contained true --output ./publish/cross-platform /p:PublishSingleFile=true
+      run: dotnet publish --configuration Release /p:PublishProfile=Publish-portable.pubxml --output ./publish/cross-platform/
       working-directory: google-photos-upload/google-photos-upload
         
     - name: Upload Windows executable
       uses: actions/upload-artifact@v4
       with:
         name: google-photos-upload-app-windows
-        path: google-photos-upload/google-photos-upload/publish/win/
+        path: google-photos-upload/google-photos-upload/publish/windows/
         retention-days: 30
     
     - name: Upload cross-platform executable
