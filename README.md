@@ -15,7 +15,7 @@ Features:
 
 
 ## User Guide
-Ready to give it a try? Check out the [User Guide](USER_GUIDE.md).
+Ready to give it a try? Check out the [User Guide](docs/USER_GUIDE.md).
 
 
 ## SDK / API references
