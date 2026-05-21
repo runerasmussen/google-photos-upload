@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36310.24 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "google-photos-upload", "src\google-photos-upload\google-photos-upload.csproj", "{579D3341-9E0F-4E33-A3BE-D53015F3F4D1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "google-photos-upload.test", "tests\google-photos-upload.test\google-photos-upload.test.csproj", "{8394857D-7B51-44A1-80C1-3022F3852F3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{579D3341-9E0F-4E33-A3BE-D53015F3F4D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{579D3341-9E0F-4E33-A3BE-D53015F3F4D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{579D3341-9E0F-4E33-A3BE-D53015F3F4D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{579D3341-9E0F-4E33-A3BE-D53015F3F4D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8394857D-7B51-44A1-80C1-3022F3852F3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8394857D-7B51-44A1-80C1-3022F3852F3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8394857D-7B51-44A1-80C1-3022F3852F3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8394857D-7B51-44A1-80C1-3022F3852F3B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5DCD0315-4819-43B8-8928-9DAD950546FF}
+	EndGlobalSection
+EndGlobal
